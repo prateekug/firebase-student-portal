@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Faculty Debug - Check Uploads</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .checklist {
+            list-style: none;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .checklist li:before {
+            content: "☐ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Faculty Debug - Verify Uploads</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="checkStatus()">🔄 Check Upload Status</button>
+            <button onclick="checkStorage()">📦 Check Storage (Uploaded Files)</button>
+            <button onclick="checkFirestore()">📊 Check Firestore (Metadata)</button>
+            <button onclick="location.reload()">↻ Reload Page</button>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="section">
+            <h2>📊 Statistics</h2>
+            <div id="statsContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Uploaded Resources in Firestore</h2>
+            <div id="firestoreContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📁 Files in Storage</h2>
+            <div id="storageContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Troubleshooting Checklist</h2>
+            <ul class="checklist">
+                <li>Faculty is logged in with valid account</li>
+                <li>Videos uploaded from faculty dashboard</li>
+                <li>Firestore security rules are published</li>
+                <li>Firebase project is configured correctly</li>
+                <li>No JavaScript errors in browser console</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🐛 Debug Console Output</h2>
+            <pre id="debugOutput">Open browser console (F12) to see detailed logs...</pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getStorage, ref, listAll } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+            authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+            projectId: "virtual-ai-lab-e2a95",
+            storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+            messagingSenderId: "216930653843",
+            appId: "1:216930653843:web:c5814218b8ba957f349f66",
+            measurementId: "G-XTD7Y22TYC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('statusMessage').innerHTML = 
+                    '<div class="status success">✅ Logged in as: ' + user.email + '</div>';
+            } else {
+                document.getElementById('statusMessage').innerHTML = 
+                    '<div class="status error">❌ Not logged in. This should be opened while logged in as faculty.</div>';
+            }
+        });
+
+        window.checkStatus = function() {
+            const msg = document.getElementById('statusMessage');
+            if (currentUser) {
+                msg.innerHTML = '<div class="status success">✅ You are logged in as faculty: ' + currentUser.email + '</div>';
+            } else {
+                msg.innerHTML = '<div class="status error">❌ You must be logged in as faculty to use this debug page.</div>';
+            }
+        };
+
+        window.checkFirestore = async function() {
+            const container = document.getElementById('firestoreContainer');
+            const statsDiv = document.getElementById('statsContainer');
+            
+            try {
+                console.log('Checking Firestore resources collection...');
+                container.innerHTML = '<div class="status info">🔄 Loading resources from Firestore...</div>';
+
+                const resourcesRef = collection(db, 'resources');
+                const querySnapshot = await getDocs(resourcesRef);
+
+                console.log('Query successful! Total docs:', querySnapshot.size);
+
+                const resources = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    resources.push({ id: doc.id, ...data });
+                    console.log('Found resource:', data.title, '| Type:', data.type, '| Regulation:', data.regulation, '| Subject:', data.subject);
+                });
+
+                if (resources.length === 0) {
+                    container.innerHTML = `
+                        <div class="status error">
+                            ❌ NO RESOURCES FOUND IN FIRESTORE!<br><br>
+                            <strong>This means:</strong><br>
+                            • Either no videos have been uploaded yet, OR<br>
+                            • Videos were uploaded but not saved to Firestore<br><br>
+                            <strong>What to do:</strong><br>
+                            1. Go to faculty_upload.html<br>
+                            2. Upload a test video with:<br>
+                            &nbsp;&nbsp;• Title: "Test Video"<br>
+                            &nbsp;&nbsp;• Regulation: 2023<br>
+                            &nbsp;&nbsp;• Subject: Physics<br>
+                            3. Watch the browser console for any errors<br>
+                            4. Then come back and click "Check Firestore" again
+                        </div>
+                    `;
+                    statsDiv.innerHTML = '<div class="no-data">No statistics available - no resources uploaded</div>';
+                    return;
+                }
+
+                // Show statistics
+                const stats = {
+                    total: resources.length,
+                    videos: resources.filter(r => r.type === 'video').length,
+                    presentations: resources.filter(r => r.type === 'ppt').length,
+                    regulations: [...new Set(resources.map(r => r.regulation))],
+                    subjects: [...new Set(resources.map(r => r.subject))]
+                };
+
+                let statsHtml = `
+                    <div class="stat-card">
+                        <div class="number">${stats.total}</div>
+                        <div class="label">Total Resources</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.videos}</div>
+                        <div class="label">Videos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.presentations}</div>
+                        <div class="label">Presentations</div>
+                    </div>
+                `;
+                statsDiv.innerHTML = statsHtml;
+
+                // Show table
+                let tableHtml = '<table><thead><tr><th>Title</th><th>Type</th><th>Regulation</th><th>Subject</th><th>Uploaded By</th></tr></thead><tbody>';
+                
+                resources.forEach(resource => {
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${resource.title || 'N/A'}</strong></td>
+                            <td><span style="background: ${resource.type === 'video' ? '#667eea' : '#49a09d'}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">${resource.type || 'N/A'}</span></td>
+                            <td>${resource.regulation || 'N/A'}</td>
+                            <td>${resource.subject || 'N/A'}</td>
+                            <td>${resource.uploadedBy || 'Unknown'}</td>
+                        </tr>
+                    `;
+                });
+                tableHtml += '</tbody></table>';
+
+                container.innerHTML = '<div class="status success">✅ Found ' + resources.length + ' resources in Firestore!</div>' + tableHtml;
+
+            } catch (error) {
+                console.error('Error checking Firestore:', error);
+                container.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
+            }
+        };
+
+        window.checkStorage = async function() {
+            const container = document.getElementById('storageContainer');
+            
+            try {
+                console.log('Checking Firebase Storage...');
+                container.innerHTML = '<div class="status info">🔄 Scanning storage for uploaded files...</div>';
+
+                const subjects = ['Physics', 'BEEE', 'Engineering Workshop'];
+                const regulations = ['2022', '2023', '2024'];
+                let allFiles = [];
+
+                for (const subject of subjects) {
+                    for (const regulation of regulations) {
+                        try {
+                            // Check videos folder
+                            const videosRef = ref(storage, `faculty/${subject}/${regulation}/videos`);
+                            const videosList = await listAll(videosRef);
+                            
+                            videosList.items.forEach(item => {
+                                allFiles.push({
+                                    name: item.name,
+                                    path: item.fullPath,
+                                    type: 'Video',
+                                    subject: subject,
+                                    regulation: regulation
+                                });
+                            });
+
+                            // Check presentations folder
+                            const pptRef = ref(storage, `faculty/${subject}/${regulation}/presentations`);
+                            const pptList = await listAll(pptRef);
+                            
+                            pptList.items.forEach(item => {
+                                allFiles.push({
+                                    name: item.name,
+                                    path: item.fullPath,
+                                    type: 'Presentation',
+                                    subject: subject,
+                                    regulation: regulation
+                                });
+                            });
+
+                        } catch (error) {
+                            // Folder doesn't exist, which is fine
+                        }
+                    }
+                }
+
+                if (allFiles.length === 0) {
+                    container.innerHTML = `
+                        <div class="status warning">
+                            ⚠️ NO FILES FOUND IN STORAGE!<br><br>
+                            <strong>This could mean:</strong><br>
+                            • No files have been uploaded yet, OR<br>
+                            • Files were deleted, OR<br>
+                            • Files are in different storage locations<br><br>
+                            <strong>Check:</strong><br>
+                            1. Go to Firebase Console > Storage<br>
+                            2. Look for "faculty" folder<br>
+                            3. Check if files exist there
+                        </div>
+                    `;
+                    return;
+                }
+
+                let tableHtml = '<table><thead><tr><th>File Name</th><th>Type</th><th>Regulation</th><th>Subject</th></tr></thead><tbody>';
+                
+                allFiles.forEach(file => {
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${file.name}</strong></td>
+                            <td>${file.type}</td>
+                            <td>${file.regulation}</td>
+                            <td>${file.subject}</td>
+                        </tr>
+                    `;
+                });
+                tableHtml += '</tbody></table>';
+
+                container.innerHTML = '<div class="status success">✅ Found ' + allFiles.length + ' files in storage!</div>' + tableHtml;
+
+            } catch (error) {
+                console.error('Error checking storage:', error);
+                container.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
+            }
+        };
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            setTimeout(checkFirestore, 1000);
+        });
+    </script>
+</body>
+</html>

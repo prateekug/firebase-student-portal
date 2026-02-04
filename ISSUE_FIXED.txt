@@ -1,0 +1,99 @@
+ISSUE FOUND & FIXED ✓
+=====================
+
+PROBLEM:
+--------
+Data was saved to "labs" collection
+But student dashboard was looking for "resources" collection
+They didn't match!
+
+SOLUTION:
+---------
+✓ Updated student_dashboard.html to read from "labs" collection
+✓ Created labs_debug.html to verify data is loading correctly
+
+WHAT CHANGED:
+--------------
+Before: collection(db, 'resources')
+After:  collection(db, 'labs')
+
+Also handles different field names:
+- experiment → title
+- videoURL → videoUrl  
+- pptURL → pptUrl
+
+
+WHAT TO DO NOW:
+---------------
+
+1. Open labs_debug.html in your browser
+   This will show:
+   - Total materials in labs collection
+   - Which regulations/subjects have materials
+   - Whether each has video or PPT
+
+2. If it shows materials:
+   - Go to student_dashboard.html
+   - Go to "Materials" section
+   - Select a regulation and subject
+   - Videos should now appear! ✓
+
+3. Click "Watch" on a video
+   - It should play in the modal
+
+4. Click "View" on a presentation
+   - It should open in a new tab
+
+
+FILES TO USE:
+--------------
+labs_debug.html ← Check what materials are available
+student_dashboard.html ← Should now show videos properly!
+faculty_upload.html ← Use to upload more materials if needed
+
+
+TROUBLESHOOTING:
+----------------
+
+If labs_debug.html shows materials but student dashboard is still empty:
+1. Refresh the student dashboard (Ctrl+R)
+2. Wait 5 seconds
+3. Go to Materials section
+4. Select regulation and subject
+5. Should appear now
+
+If videos still don't play when clicked:
+1. Check browser console (F12)
+2. Look for error messages
+3. Check that videoURL is not null in labs_debug.html
+
+
+EXPECTED BEHAVIOR:
+-------------------
+
+labs_debug.html should show:
+✓ Total Materials: X
+✓ With Video URL: X
+✓ With PPT URL: X
+✓ Regulations: [2023]
+✓ Subjects: [Physics]
+
+Then in student dashboard:
+1. Select Regulation: 2023
+2. Select Subject: Physics
+3. Materials with matching regulation+subject appear
+4. Click Watch/View to access them
+
+
+NEXT STEP:
+-----------
+
+Open: labs_debug.html
+
+Tell me what it shows:
+- How many materials found?
+- Which regulations?
+- Which subjects?
+- Does each have video or PPT?
+
+This will confirm everything is working!

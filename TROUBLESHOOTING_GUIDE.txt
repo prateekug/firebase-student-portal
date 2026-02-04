@@ -1,0 +1,149 @@
+COMPLETE TROUBLESHOOTING GUIDE - VIDEO NOT SHOWING IN STUDENT DASHBOARD
+========================================================================
+
+STEP 1: VERIFY FIRESTORE SECURITY RULES
+========================================================================
+1. Go to: https://console.firebase.google.com/
+2. Select project: "virtual-ai-lab-e2a95"
+3. Click "Firestore Database" in left sidebar
+4. Click "Rules" tab
+5. Replace with these rules:
+
+---START COPY HERE---
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read resources (for students to view materials)
+    match /resources/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Allow authenticated users to read their own progress
+    match /students/{userId}/progress/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to read their own data
+    match /students/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
+---END COPY HERE---
+
+6. Click "Publish" button
+7. Wait for it to say "Rules Published Successfully"
+
+
+STEP 2: CHECK IF VIDEOS WERE UPLOADED
+========================================================================
+1. Open this file in your browser: firestore_debug.html
+2. You should see a table with all uploaded resources
+3. Check if your videos appear in the table
+
+If NO VIDEOS appear:
+   → Go to faculty dashboard and upload a video again
+   → Make sure you fill in:
+      • Video Title
+      • Regulation (2022, 2023, or 2024)
+      • Subject (BEEE, Physics, or Engineering Workshop)
+      • Select a video file
+
+If VIDEOS appear in debug page but not student dashboard:
+   → The issue is with the security rules or student dashboard code
+   → Continue to STEP 3
+
+
+STEP 3: TEST STUDENT DASHBOARD
+========================================================================
+1. Go to Student Dashboard
+2. Go to "Materials" section
+3. Select same Regulation and Subject as uploaded video
+4. Check browser console (F12 → Console tab)
+5. Look for logs showing:
+   - "Loaded resources: [array of videos]"
+   - "Filtering with: {regulation, subject}"
+
+If console shows empty arrays:
+   → Security rules are not allowing reads
+   → Go back to STEP 1 and make sure rules are published
+
+If console shows videos loading:
+   → Videos should appear on the page
+   → If still not showing, try refreshing the page
+
+
+STEP 4: VERIFY EXACT MATCH
+========================================================================
+Make sure you're selecting EXACT matches:
+
+Faculty uploaded with:
+- Regulation: "2023"
+- Subject: "Physics"
+
+Student must select:
+- Regulation: "2023" (not 2022 or 2024)
+- Subject: "Physics" (not BEEE or Engineering Workshop)
+
+The values MUST match exactly!
+
+
+STEP 5: TEST VIDEO PLAYBACK
+========================================================================
+1. If videos now show in student dashboard
+2. Click "Watch" button on a video
+3. Video should open in a modal/popup
+4. Click play button to watch
+5. Progress should be tracked
+
+
+TROUBLESHOOTING CHECKLIST:
+========================================================================
+[ ] Firestore security rules updated and published
+[ ] firestore_debug.html shows videos in the table
+[ ] Student dashboard console shows videos loading
+[ ] Regulation and Subject selections match exactly
+[ ] Video URL is not empty in debug page
+[ ] Student is logged in before viewing materials
+
+
+IF STILL NOT WORKING:
+========================================================================
+1. Check browser console for errors (F12)
+2. Open firestore_debug.html and take a screenshot
+3. Check if videos appear with correct regulation/subject
+4. Verify Firestore Rules tab shows "Rules are valid"
+
+
+QUICK CHECKLIST:
+========================================================================
+Videos uploaded from faculty?
+    YES → Go to firestore_debug.html
+    NO → Upload a video in faculty dashboard first
+
+Firestore debug shows videos?
+    YES → Check student dashboard + console logs
+    NO → Check Firebase > Firestore > Data tab to see if collection exists
+
+Student dashboard shows videos?
+    YES → Click Watch button to play
+    NO → Check console for "Missing or insufficient permissions"
+         → Go back to STEP 1 and update security rules
+
+
+FILES TO USE:
+========================================================================
+1. firestore_debug.html - Check what's in your database
+2. faculty_upload.html - Upload videos (faculty account)
+3. student_dashboard.html - View videos (student account)
+4. FIRESTORE_SECURITY_RULES.txt - Security rules to copy
+
+
+IMPORTANT NOTES:
+========================================================================
+- Faculty uploads with a SPECIFIC regulation and subject
+- Students can ONLY see videos matching their selected regulation + subject
+- Security rules MUST allow reads on "resources" collection
+- Videos are stored in Firebase Storage with download URLs in Firestore
+- Video playback works from direct download URLs

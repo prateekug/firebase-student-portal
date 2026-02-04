@@ -1,0 +1,143 @@
+QUICK FIX - LABS COLLECTION PERMISSION ERROR
+==============================================
+
+ERROR: "Missing or insufficient permissions"
+
+CAUSE: Security rules don't allow reads from "labs" collection
+
+SOLUTION: Update security rules to include "labs" collection
+
+STEPS (Copy the exact sequence):
+=================================
+
+1. Browser tab: Open https://console.firebase.google.com/
+
+2. Select: "virtual-ai-lab-e2a95" project
+
+3. Left sidebar: Click "Firestore Database"
+
+4. Tabs: Click "Rules" (next to Overview, Indexes, etc.)
+
+5. Editor: You should see a text editor with rules
+
+6. Select All: Press Ctrl+A (or Cmd+A on Mac)
+
+7. Delete: Press Delete key to remove all text
+
+8. Copy from UPDATED_RULES_LABS.txt file:
+   - Open the file
+   - Select all text
+   - Copy it
+
+9. Paste: In the Firebase rules editor, paste the rules
+
+10. Look for Publish button:
+    - Should be BLUE button at bottom RIGHT
+    - OR top RIGHT area
+    - Text should say "Publish" or "Deploy"
+
+11. Click: Click the Publish button
+
+12. Wait: Watch for green confirmation
+    - Should say "Published successfully"
+    - OR show a checkmark (✓)
+
+13. Close: Close the notification
+
+14. Refresh: Go back to labs_debug.html browser tab
+
+15. Refresh Page: Press Ctrl+R (or Cmd+R on Mac)
+
+16. Result: Should now show your materials!
+
+
+IF PUBLISH BUTTON DOESN'T APPEAR:
+==================================
+
+Check these:
+
+☐ Did you delete ALL old rules? (text editor should be empty)
+☐ Did you paste NEW rules? (should show "rules_version = '2';")
+☐ Are there any red error lines? (would indicate syntax error)
+☐ Look at BOTTOM RIGHT - is there a blue button?
+☐ Look at TOP RIGHT - is there a button there?
+☐ Scroll down in the editor area - button might be below visible area
+
+If still no button:
+- Try refreshing the Firebase Console page
+- The button should appear once you make changes
+
+
+VERIFY IT WORKED:
+=================
+
+After clicking Publish and seeing confirmation:
+
+1. labs_debug.html should show:
+   ✓ Total materials found (not 0)
+   ✓ Materials by regulation & subject
+   ✓ List of all uploaded materials
+
+2. student_dashboard.html should show:
+   ✓ Materials when you select regulation + subject
+   ✓ Watch/View buttons on each material
+
+3. Can click Watch:
+   ✓ Video plays in modal
+   ✓ Progress tracked
+
+
+TROUBLESHOOTING:
+================
+
+Still showing error after publish?
+- Close all browser tabs
+- Open Firebase Console fresh
+- Check rules tab shows your new rules
+- Manually refresh labs_debug.html (Ctrl+R)
+
+Still showing error after refresh?
+- Go to Firebase > Firestore > Data tab
+- You should see "labs" collection
+- If not there, need to upload materials first
+
+Rules won't publish (red error)?
+- Copy rules again from UPDATED_RULES_LABS.txt
+- Make sure there are NO typos
+- Make sure indentation is correct
+- All lines exactly as shown
+
+
+QUICK CHECKLIST:
+================
+
+[ ] Opened Firebase Console
+[ ] Selected correct project
+[ ] Went to Firestore Database > Rules
+[ ] Deleted ALL old rules (text editor empty)
+[ ] Pasted new rules from UPDATED_RULES_LABS.txt
+[ ] Clicked Publish button
+[ ] Saw "Published successfully" message
+[ ] Refreshed labs_debug.html page
+[ ] Now shows materials instead of error!
+
+
+KEY RULES EXPLANATION:
+======================
+
+match /labs/{document=**} {
+  allow read: if true;
+  → ANYONE can READ labs materials (students see them)
+
+  allow write: if request.auth != null;
+  → Only LOGGED IN users can WRITE (faculty uploads)
+}
+
+
+Need more help?
+Tell me:
+1. Did you see Publish button? YES / NO
+2. Did you click it? YES / NO
+3. Did you see green confirmation? YES / NO
+4. Did you refresh labs_debug.html? YES / NO
+5. What error shows now?

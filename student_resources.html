@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Lab Resources</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .resources-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1d976c, #93f9b9);
+            padding: 40px 20px;
+        }
+
+        .resources-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .resources-header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .selection-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 15px;
+        }
+
+        .resources-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .resource-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            transition: 0.3s ease;
+            cursor: pointer;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+        }
+
+        .resource-card-header {
+            padding: 20px;
+            background: #f0f9ff;
+            border-bottom: 3px solid #1d976c;
+        }
+
+        .resource-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .resource-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1d976c;
+        }
+
+        .resource-card-body {
+            padding: 20px;
+        }
+
+        .resource-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .view-btn {
+            background: #1d976c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s ease;
+            width: 100%;
+        }
+
+        .view-btn:hover {
+            background: #0f5a3f;
+        }
+
+        .empty-message {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .back-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .back-btn:hover {
+            background: #dc2626;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .resources-header h1 {
+                font-size: 32px;
+            }
+
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .back-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="student-page">
+
+<div class="resources-container">
+    <div class="resources-header">
+        <h1>📚 Lab Resources</h1>
+        <div class="selection-info">
+            <span id="regulationDisplay"></span> | <span id="subjectDisplay"></span>
+        </div>
+    </div>
+
+    <div class="resources-content">
+        <!-- Videos Section -->
+        <div class="resource-section">
+            <div class="section-title">🎥 Video Tutorials</div>
+            <div class="resources-grid" id="videosGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading videos...
+                </div>
+            </div>
+        </div>
+
+        <!-- PPTs Section -->
+        <div class="resource-section">
+            <div class="section-title">📊 Presentation Slides</div>
+            <div class="resources-grid" id="pptsGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading presentations...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center;">
+        <div class="button-group">
+            <button class="back-btn" id="backBtn">← Back to Dashboard</button>
+            <button class="back-btn" id="logoutBtn" style="background: #6366f1;">Logout</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+  authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+  projectId: "virtual-ai-lab-e2a95",
+  storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+  messagingSenderId: "216930653843",
+  appId: "1:216930653843:web:c5814218b8ba957f349f66",
+  measurementId: "G-XTD7Y22TYC"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const selectedRegulation = localStorage.getItem("selectedRegulation");
+const selectedSubject = localStorage.getItem("selectedSubject");
+
+// Display selections
+document.getElementById("regulationDisplay").innerText = "Regulation: " + selectedRegulation;
+document.getElementById("subjectDisplay").innerText = "Subject: " + selectedSubject;
+
+// Fetch resources from Firestore
+async function loadResources() {
+  try {
+    // Query for videos and PPTs from labs collection
+    const labsQuery = query(
+      collection(db, "labs"),
+      where("regulation", "==", selectedRegulation),
+      where("subject", "==", selectedSubject)
+    );
+
+    const labsSnapshot = await getDocs(labsQuery);
+    
+    // Separate videos and PPTs
+    const videos = [];
+    const ppts = [];
+    
+    labsSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.videoURL && data.videoURL.trim() !== "") {
+        videos.push(data);
+      }
+      if (data.pptURL && data.pptURL.trim() !== "") {
+        ppts.push(data);
+      }
+    });
+    
+    displayVideos(videos);
+    displayPPTs(ppts);
+
+  } catch (error) {
+    console.error("Error loading resources:", error);
+    document.getElementById("videosGrid").innerHTML = '<div class="empty-message">Error loading videos. Please try again.</div>';
+    document.getElementById("pptsGrid").innerHTML = '<div class="empty-message">Error loading presentations. Please try again.</div>';
+  }
+}
+
+function displayVideos(videos) {
+  const videosGrid = document.getElementById("videosGrid");
+  
+  if (!videos || videos.length === 0) {
+    videosGrid.innerHTML = '<div class="empty-message" style="grid-column: 1 / -1;">No video tutorials available yet. Check back soon!</div>';
+    return;
+  }
+
+  videosGrid.innerHTML = "";
+  videos.forEach(data => {
+    const card = document.createElement("div");
+    card.className = "resource-card";
+    const uploadedDate = data.timestamp?.seconds 
+      ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() 
+      : "N/A";
+    
+    card.innerHTML = `
+      <div class="resource-card-header">
+        <div class="resource-icon">🎥</div>
+        <div class="resource-card-title">${data.experiment || "Untitled Video"}</div>
+      </div>
+      <div class="resource-card-body">
+        <div class="resource-description" style="color: #666;">Lab Experiment Video</div>
+        <div class="resource-meta">
+          <span>Uploaded: ${uploadedDate}</span>
+        </div>
+        <button class="view-btn" onclick="window.open('${data.videoURL}', '_blank')">Watch Video</button>
+      </div>
+    `;
+    videosGrid.appendChild(card);
+  });
+}
+
+function displayPPTs(ppts) {
+  const pptsGrid = document.getElementById("pptsGrid");
+  
+  if (!ppts || ppts.length === 0) {
+    pptsGrid.innerHTML = '<div class="empty-message" style="grid-column: 1 / -1;">No presentations available yet. Check back soon!</div>';
+    return;
+  }
+
+  pptsGrid.innerHTML = "";
+  ppts.forEach(data => {
+    const card = document.createElement("div");
+    card.className = "resource-card";
+    const uploadedDate = data.timestamp?.seconds 
+      ? new Date(data.timestamp.seconds * 1000).toLocaleDateString() 
+      : "N/A";
+    
+    card.innerHTML = `
+      <div class="resource-card-header">
+        <div class="resource-icon">📊</div>
+        <div class="resource-card-title">${data.experiment || "Untitled Presentation"}</div>
+      </div>
+      <div class="resource-card-body">
+        <div class="resource-description" style="color: #666;">Lab Experiment Presentation</div>
+        <div class="resource-meta">
+          <span>Uploaded: ${uploadedDate}</span>
+        </div>
+        <button class="view-btn" onclick="window.open('${data.pptURL}', '_blank')">View Presentation</button>
+      </div>
+    `;
+    pptsGrid.appendChild(card);
+  });
+}
+
+// Load resources on page load
+loadResources();
+
+// Back button
+const backBtn = document.getElementById("backBtn");
+if (backBtn) {
+  backBtn.addEventListener("click", function() {
+    window.location.href = "student_dashboard.html";
+  });
+}
+
+// Logout button
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", function() {
+    signOut(auth).then(() => {
+      localStorage.removeItem("selectedRegulation");
+      localStorage.removeItem("selectedSubject");
+      window.location.href = "student_login.html";
+    }).catch((error) => {
+      console.error("Logout error:", error);
+    });
+  });
+}
+</script>
+
+</body>
+</html>

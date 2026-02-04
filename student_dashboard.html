@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Dashboard - Virtual AI Lab</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header i {
+            font-size: 32px;
+            margin-right: 12px;
+            color: #667eea;
+        }
+
+        .sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav li {
+            margin: 10px 0;
+        }
+
+        .sidebar-nav a {
+            color: #bbb;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .sidebar-nav a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: white;
+            border-left: 4px solid #667eea;
+            padding-left: 11px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .user-info .user-email {
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            margin-left: 280px;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8eaed 100%);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin: 0;
+        }
+
+        .regulation-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .regulation-selector label {
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .regulation-selector select {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .regulation-selector select:hover {
+            border-color: #764ba2;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .regulation-selector select:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .overview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .course-header i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .course-header h3 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .course-body {
+            padding: 20px;
+        }
+
+        .course-body p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .course-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .course-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .materials-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .material-item {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .material-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .material-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .material-info i {
+            font-size: 28px;
+            color: #667eea;
+        }
+
+        .material-details h4 {
+            color: #333;
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .material-details p {
+            color: #999;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .material-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .material-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .progress-info {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .regulation-selector {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .regulation-selector select {
+                width: 100%;
+            }
+
+            .video-player {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-book-open"></i>
+                <h3>Student Portal</h3>
+            </div>
+
+            <div class="user-info">
+                <i class="fas fa-user-circle" style="font-size: 32px;"></i>
+                <div class="user-email" id="userEmail">loading...</div>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li><a href="#" onclick="showSection('overview')" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" onclick="showSection('courses')" class="nav-link"><i class="fas fa-book"></i> Courses</a></li>
+                <li><a href="#" onclick="showSection('materials')" class="nav-link"><i class="fas fa-file"></i> Materials</a></li>
+                <li><a href="#" onclick="showSection('progress')" class="nav-link"><i class="fas fa-chart-line"></i> Progress</a></li>
+            </ul>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overview" class="section active">
+                <div class="content-header">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+                </div>
+
+                <div class="overview-container">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <h3>Courses</h3>
+                        <div class="number">3</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-video"></i>
+                        <h3>Videos Watched</h3>
+                        <div class="number" id="videosWatchedCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3>Avg. Progress</h3>
+                        <div class="number" id="avgProgress">0%</div>
+                    </div>
+                </div>
+
+                <div class="materials-container">
+                    <h3 style="margin-bottom: 20px;"><i class="fas fa-file-alt"></i> Recent Materials</h3>
+                    <div id="recentMaterials"></div>
+                </div>
+            </div>
+
+            <!-- Courses Section -->
+            <div id="courses" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-book"></i> My Courses</h1>
+                    <div class="regulation-selector">
+                        <label for="regulationYear">Regulation Year:</label>
+                        <select id="regulationYear" onchange="filterCoursesByRegulation()">
+                            <option value="">Select a year</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="courses-grid">
+                    <div class="course-card" data-regulation="2021,2022,2023,2024">
+                        <div class="course-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>Physics</h3>
+                        </div>
+                        <div class="course-body">
+                            <p>Comprehensive study of mechanics, thermodynamics, waves, and electromagnetism through virtual experiments.</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="physics-progress" style="width: 0%;"></div>
+                            </div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-video"></i> <span id="physics-count">0</span> Videos</span>
+                                <span id="physics-percent">0%</span>
+                            </div>
+                            <button class="course-btn" onclick="openCourseMaterials('Physics')"><i class="fas fa-arrow-right"></i> View Materials</button>
+                        </div>
+                    </div>
+
+                    <div class="course-card" data-regulation="2021,2022,2023,2024">
+                        <div class="course-header">
+                            <i class="fas fa-plug"></i>
+                            <h3>BEEE</h3>
+                        </div>
+                        <div class="course-body">
+                            <p>Learn Basic Electrical and Electronics Engineering fundamentals, circuits, and practical applications.</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="beee-progress" style="width: 0%;"></div>
+                            </div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-flask"></i> <span id="beee-count">0</span> Videos</span>
+                                <span id="beee-percent">0%</span>
+                            </div>
+                            <button class="course-btn" onclick="openCourseMaterials('BEEE')"><i class="fas fa-arrow-right"></i> View Materials</button>
+                        </div>
+                    </div>
+
+                    <div class="course-card" data-regulation="2021,2022,2023,2024">
+                        <div class="course-header">
+                            <i class="fas fa-tools"></i>
+                            <h3>Engineering Workshop</h3>
+                        </div>
+                        <div class="course-body">
+                            <p>Hands-on workshop training on engineering tools, CAD software, and practical fabrication techniques.</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="workshop-progress" style="width: 0%;"></div>
+                            </div>
+                            <div class="course-meta">
+                                <span><i class="fas fa-tools"></i> <span id="workshop-count">0</span> Videos</span>
+                                <span id="workshop-percent">0%</span>
+                            </div>
+                            <button class="course-btn" onclick="openCourseMaterials('Engineering Workshop')"><i class="fas fa-arrow-right"></i> View Materials</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materials Section -->
+            <div id="materials" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-file"></i> Learning Materials</h1>
+                    <div class="regulation-selector">
+                        <label for="studentRegulation">Regulation:</label>
+                        <select id="studentRegulation" onchange="filterMaterialsBySelection()">
+                            <option value="">Select Regulation</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <label for="studentSubject" style="margin-left: 15px;">Subject:</label>
+                        <select id="studentSubject" onchange="filterMaterialsBySelection()">
+                            <option value="">Select Subject</option>
+                            <option value="BEEE">BEEE</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Engineering Workshop">Engineering Workshop</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="materials-container">
+                    <div id="materialsList"></div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progress" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-chart-line"></i> Learning Progress</h1>
+                </div>
+
+                <div class="overview-container" style="margin-bottom: 30px;">
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Videos Completed</h3>
+                        <div class="number" id="completedVideos">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-spinner"></i>
+                        <h3>In Progress</h3>
+                        <div class="number" id="inProgressVideos">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>Total Hours</h3>
+                        <div class="number" id="totalHours">0</div>
+                    </div>
+                </div>
+
+                <div class="materials-container">
+                    <h3 style="margin-bottom: 20px;"><i class="fas fa-tasks"></i> Course Progress</h3>
+                    <div id="progressDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeVideoModal()">&times;</span>
+            <div class="video-player">
+                <video id="mainVideo" controls>
+                    <source id="videoSource" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <h2 id="videoTitle"></h2>
+            <p id="videoInfo" style="color: #666; margin-bottom: 15px;"></p>
+            <div id="watchProgress" class="progress-info" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getStorage, ref, getBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        import { getDatabase, ref as dbRef, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+            authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+            projectId: "virtual-ai-lab-e2a95",
+            storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+            messagingSenderId: "216930653843",
+            appId: "1:216930653843:web:c5814218b8ba957f349f66",
+            measurementId: "G-XTD7Y22TYC",
+            databaseURL: "https://virtual-ai-lab-e2a95-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+        const database = getDatabase(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let coursesMaterials = {};
+        let allResources = [];
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'student_login.html';
+            } else {
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                loadMaterials();
+                loadProgressStats();
+            }
+        });
+
+        window.showSection = function(sectionId) {
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.closest('a').classList.add('active');
+        };
+
+        window.filterCoursesByRegulation = function() {
+            const selectedYear = document.getElementById('regulationYear').value;
+            const courseCards = document.querySelectorAll('.course-card');
+            
+            courseCards.forEach(card => {
+                if (selectedYear === '') {
+                    card.style.display = 'block';
+                } else if (card.getAttribute('data-regulation').includes(selectedYear)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        };
+
+        window.filterMaterialsBySelection = function() {
+            const selectedRegulation = document.getElementById('studentRegulation').value;
+            const selectedSubject = document.getElementById('studentSubject').value;
+
+            console.log('Filtering with:', { selectedRegulation, selectedSubject });
+            console.log('All resources:', allResources);
+
+            let filteredResources = allResources;
+
+            if (selectedRegulation) {
+                filteredResources = filteredResources.filter(resource => resource.regulation === selectedRegulation);
+                console.log('After regulation filter:', filteredResources);
+            }
+
+            if (selectedSubject) {
+                filteredResources = filteredResources.filter(resource => resource.subject === selectedSubject);
+                console.log('After subject filter:', filteredResources);
+            }
+
+            console.log('Final filtered resources:', filteredResources);
+            displayFilteredMaterials(filteredResources);
+        };
+
+        function displayFilteredMaterials(resources) {
+            let html = '';
+
+            console.log('Displaying materials:', resources);
+
+            if (resources.length === 0) {
+                const selectedReg = document.getElementById('studentRegulation')?.value;
+                const selectedSub = document.getElementById('studentSubject')?.value;
+                
+                if (selectedReg || selectedSub) {
+                    html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No materials found for the selected regulation and subject. Please try different selections.</p></div>';
+                } else {
+                    html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Select a regulation and subject to view materials</p></div>';
+                }
+            } else {
+                resources.forEach(resource => {
+                    const icon = resource.type === 'video' ? 'film' : 'file-pdf';
+                    const actionText = resource.type === 'video' ? 'Watch' : 'View';
+                    
+                    html += `
+                        <div class="material-item">
+                            <div class="material-info">
+                                <i class="fas fa-${icon}"></i>
+                                <div class="material-details">
+                                    <h4>${resource.title}</h4>
+                                    <p>${resource.subject} • ${resource.regulation} • ${resource.type === 'video' ? 'Video' : 'Presentation'}</p>
+                                </div>
+                            </div>
+                            <button class="material-btn" onclick="handleResourceAction('${resource.id}', '${resource.type}')">${actionText}</button>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('materialsList').innerHTML = html;
+        }
+
+        window.handleResourceAction = async function(resourceId, resourceType) {
+            const resource = allResources.find(r => r.id === resourceId);
+            if (!resource) return;
+
+            if (resourceType === 'video') {
+                await playVideo(resource);
+            } else {
+                openPresentation(resource);
+            }
+        };
+
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            });
+        };
+
+        async function loadMaterials() {
+            try {
+                // Fetch all resources from Firestore "labs" collection
+                const resourcesRef = collection(db, 'labs');
+                console.log('Fetching resources from Firestore labs collection...');
+                const querySnapshot = await getDocs(resourcesRef);
+
+                allResources = [];
+                coursesMaterials = {};
+
+                console.log('Query snapshot size:', querySnapshot.size);
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('Document data:', data);
+                    
+                    // Handle both field names: title/experiment, videoUrl/videoURL, pptUrl/pptURL
+                    const resourceData = {
+                        id: doc.id,
+                        title: data.title || data.experiment || 'Untitled',
+                        description: data.description || '',
+                        type: data.type || (data.videoURL ? 'video' : data.pptURL ? 'ppt' : 'unknown'),
+                        regulation: data.regulation || '',
+                        subject: data.subject || '',
+                        videoUrl: data.videoURL || data.videoUrl || null,
+                        pptUrl: data.pptURL || data.pptUrl || null,
+                        fileName: data.fileName || '',
+                        uploadedBy: data.uploadedBy || 'Faculty',
+                        uploadedAt: data.uploadedAt || data.timestamp || null
+                    };
+
+                    // Only add if it has regulation and subject
+                    if (resourceData.regulation && resourceData.subject) {
+                        allResources.push(resourceData);
+
+                        // Organize by subject for course view
+                        if (!coursesMaterials[resourceData.subject]) {
+                            coursesMaterials[resourceData.subject] = [];
+                        }
+                        coursesMaterials[resourceData.subject].push({
+                            id: doc.id,
+                            name: resourceData.title,
+                            type: resourceData.type,
+                            year: resourceData.regulation,
+                            url: resourceData.videoUrl || resourceData.pptUrl,
+                            resource: resourceData
+                        });
+                    }
+                });
+
+                console.log('Loaded resources:', allResources);
+                console.log('Course materials:', coursesMaterials);
+                
+                loadRecentMaterials();
+                displayFilteredMaterials(allResources);
+                updateCourseStats();
+            } catch (error) {
+                console.error('Materials load error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                
+                // Show error in UI
+                if (document.getElementById('materialsList')) {
+                    document.getElementById('materialsList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>Error loading materials:</p>
+                            <p style="font-size: 12px; margin-top: 10px; color: #d9534f;">${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function loadRecentMaterials() {
+            let html = '';
+            const recent = allResources.slice(0, 3);
+            
+            if (recent.length === 0) {
+                document.getElementById('recentMaterials').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No materials available yet</p></div>';
+                return;
+            }
+
+            recent.forEach(material => {
+                const icon = material.type === 'video' ? 'film' : 'file-pdf';
+                const actionText = material.type === 'video' ? 'Watch' : 'View';
+                
+                html += `
+                    <div class="material-item">
+                        <div class="material-info">
+                            <i class="fas fa-${icon}"></i>
+                            <div class="material-details">
+                                <h4>${material.title}</h4>
+                                <p>${material.subject} • ${material.regulation}</p>
+                            </div>
+                        </div>
+                        <button class="material-btn" onclick="handleResourceAction('${material.id}', '${material.type}')">${actionText}</button>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('recentMaterials').innerHTML = html;
+        }
+
+        window.openCourseMaterials = function(courseName) {
+            let html = '';
+            const materials = coursesMaterials[courseName] || [];
+
+            if (materials.length === 0) {
+                html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No materials available for this course</p></div>';
+            } else {
+                materials.forEach(material => {
+                    const icon = material.type === 'video' ? 'film' : 'file-pdf';
+                    const actionText = material.type === 'video' ? 'Watch' : 'View';
+                    
+                    html += `
+                        <div class="material-item">
+                            <div class="material-info">
+                                <i class="fas fa-${icon}"></i>
+                                <div class="material-details">
+                                    <h4>${material.resource.title}</h4>
+                                    <p>${material.year} • ${material.resource.description || ''}</p>
+                                </div>
+                            </div>
+                            <button class="material-btn" onclick="handleResourceAction('${material.id}', '${material.type}')">${actionText}</button>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('materialsList').innerHTML = html;
+            showSection('materials');
+        };
+
+        window.playVideo = async function(resource) {
+            try {
+                const videoUrl = resource.videoUrl || resource.url;
+                
+                if (!videoUrl) {
+                    alert('Video URL not available');
+                    return;
+                }
+
+                console.log('Playing video:', resource.title, 'URL:', videoUrl);
+                
+                // Check if it's a YouTube URL
+                if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+                    // Extract YouTube video ID
+                    let videoId = '';
+                    if (videoUrl.includes('youtube.com')) {
+                        videoId = videoUrl.split('v=')[1]?.split('&')[0];
+                    } else if (videoUrl.includes('youtu.be')) {
+                        videoId = videoUrl.split('/').pop()?.split('?')[0];
+                    }
+                    
+                    if (videoId) {
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        document.getElementById('videoTitle').textContent = resource.title;
+                        document.getElementById('videoInfo').innerHTML = `
+                            <strong>Course:</strong> ${resource.subject} | 
+                            <strong>Regulation:</strong> ${resource.regulation} | 
+                            <strong>Uploaded by:</strong> ${resource.uploadedBy || 'Faculty'}
+                            ${resource.description ? '<br><strong>Description:</strong> ' + resource.description : ''}
+                        `;
+                        document.getElementById('videoModal').classList.add('active');
+                        
+                        // Replace video player with iframe
+                        const videoContainer = document.querySelector('.video-player');
+                        videoContainer.innerHTML = `<iframe width="100%" height="600" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px;"></iframe>`;
+                        
+                        return;
+                    }
+                }
+                
+                // For Firebase Storage or other video URLs
+                const videoSource = document.getElementById('videoSource');
+                if (videoSource) {
+                    videoSource.src = videoUrl;
+                }
+                document.getElementById('videoTitle').textContent = resource.title;
+                document.getElementById('videoInfo').innerHTML = `
+                    <strong>Course:</strong> ${resource.subject} | 
+                    <strong>Regulation:</strong> ${resource.regulation} | 
+                    <strong>Uploaded by:</strong> ${resource.uploadedBy || 'Faculty'}
+                    ${resource.description ? '<br><strong>Description:</strong> ' + resource.description : ''}
+                `;
+                document.getElementById('videoModal').classList.add('active');
+
+                const video = document.getElementById('mainVideo');
+                if (video) {
+                    video.load();
+                    
+                    // Add a small delay to ensure video is loaded before playing
+                    setTimeout(() => {
+                        video.play().catch(err => {
+                            console.error('Play error:', err);
+                        });
+                    }, 500);
+
+                    trackVideoProgress(resource.id, resource.subject, resource.title);
+                }
+            } catch (error) {
+                console.error('Error loading video:', error);
+                alert('Error loading video: ' + error.message);
+            }
+        };
+
+        window.openPresentation = function(resource) {
+            try {
+                const pptUrl = resource.pptUrl || resource.url;
+                if (pptUrl) {
+                    window.open(pptUrl, '_blank');
+                } else {
+                    alert('Presentation URL not available');
+                }
+            } catch (error) {
+                alert('Error loading presentation: ' + error.message);
+            }
+        };
+
+        function trackVideoProgress(resourceId, courseName, videoName) {
+            const video = document.getElementById('mainVideo');
+            
+            // Only track if video element exists and is not an iframe
+            if (!video || video.tagName !== 'VIDEO') {
+                console.log('Video element not available for tracking (likely YouTube iframe)');
+                return;
+            }
+            
+            let isWatching = false;
+            let maxWatchedTime = 0;
+
+            if (video.addEventListener) {
+                video.addEventListener('play', () => {
+                    isWatching = true;
+                });
+
+                video.addEventListener('pause', () => {
+                    isWatching = false;
+                });
+
+                video.addEventListener('timeupdate', async () => {
+                    if (isWatching) {
+                        maxWatchedTime = Math.max(maxWatchedTime, video.currentTime);
+                        const percentage = (video.currentTime / video.duration) * 100;
+                        
+                        document.getElementById('watchProgress').style.display = 'block';
+                        document.getElementById('watchProgress').innerHTML = `<i class="fas fa-play-circle"></i> Video Progress: ${Math.round(percentage)}%`;
+                    }
+                });
+
+                video.addEventListener('ended', async () => {
+                    await updateProgress(resourceId, courseName, 100);
+                    document.getElementById('watchProgress').innerHTML = `<i class="fas fa-check-circle"></i> <strong>Video Completed!</strong> Your progress has been saved.`;
+                });
+            }
+        }
+
+        async function updateProgress(resourceId, courseName, percentage) {
+            try {
+                const progressRef = dbRef(database, `students/${currentUser.uid}/progress/${resourceId}`);
+                await set(progressRef, {
+                    resourceId: resourceId,
+                    courseName: courseName,
+                    percentage: Math.round(percentage),
+                    lastUpdated: new Date().toISOString(),
+                    completed: percentage >= 100
+                });
+
+                loadProgressStats();
+                updateCourseStats();
+            } catch (error) {
+                console.log('Progress update error:', error);
+            }
+        }
+
+        async function loadProgressStats() {
+            try {
+                const progressRef = dbRef(database, `students/${currentUser.uid}/progress`);
+                const snapshot = await get(progressRef);
+                
+                let completedCount = 0;
+                let inProgressCount = 0;
+                let totalProgress = 0;
+                let count = 0;
+                let progressData = {};
+
+                if (snapshot.exists()) {
+                    progressData = snapshot.val();
+                    
+                    for (const key in progressData) {
+                        const item = progressData[key];
+                        if (item.completed) {
+                            completedCount++;
+                        } else if (item.percentage > 0) {
+                            inProgressCount++;
+                        }
+                        totalProgress += item.percentage;
+                        count++;
+                    }
+                }
+
+                document.getElementById('videosWatchedCount').textContent = completedCount;
+                document.getElementById('completedVideos').textContent = completedCount;
+                document.getElementById('inProgressVideos').textContent = inProgressCount;
+                document.getElementById('avgProgress').textContent = count > 0 ? Math.round(totalProgress / count) + '%' : '0%';
+                document.getElementById('totalHours').textContent = Math.round((completedCount * 1.5) * 10) / 10;
+
+                updateProgressDetails(progressData);
+            } catch (error) {
+                console.log('Progress stats error:', error);
+            }
+        }
+
+        function updateProgressDetails(progressData) {
+            let html = '';
+            const courses = ['Physics', 'BEEE', 'Engineering Workshop'];
+
+            courses.forEach(course => {
+                let courseProgress = 0;
+                let count = 0;
+
+                for (const key in progressData) {
+                    if (progressData[key].courseName === course) {
+                        courseProgress += progressData[key].percentage;
+                        count++;
+                    }
+                }
+
+                const avgProgress = count > 0 ? Math.round(courseProgress / count) : 0;
+                const icon = course === 'Physics' ? 'lightbulb' : course === 'BEEE' ? 'plug' : 'tools';
+
+                html += `
+                    <div class="material-item">
+                        <div class="material-info">
+                            <i class="fas fa-${icon}"></i>
+                            <div class="material-details">
+                                <h4>${course}</h4>
+                                <p>${count} videos watched</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="progress-bar" style="width: 150px; margin-bottom: 5px;">
+                                <div class="progress-fill" style="width: ${avgProgress}%;"></div>
+                            </div>
+                            <span style="color: #667eea; font-weight: 600;">${avgProgress}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('progressDetails').innerHTML = html || '<div class="empty-state"><p>No progress data yet. Start watching videos!</p></div>';
+        }
+
+        async function updateCourseStats() {
+            try {
+                const progressRef = dbRef(database, `students/${currentUser.uid}/progress`);
+                const snapshot = await get(progressRef);
+                const progressData = snapshot.exists() ? snapshot.val() : {};
+
+                const courses = ['Physics', 'BEEE', 'Engineering Workshop'];
+                const courseKeys = ['physics', 'beee', 'workshop'];
+
+                courses.forEach((course, index) => {
+                    const key = courseKeys[index];
+                    let totalProgress = 0;
+                    let count = 0;
+
+                    for (const progressKey in progressData) {
+                        if (progressData[progressKey].courseName === course) {
+                            totalProgress += progressData[progressKey].percentage;
+                            count++;
+                        }
+                    }
+
+                    const avgProgress = count > 0 ? Math.round(totalProgress / count) : 0;
+                    const videoCount = coursesMaterials[course] ? coursesMaterials[course].length : 0;
+
+                    document.getElementById(`${key}-count`).textContent = videoCount;
+                    document.getElementById(`${key}-percent`).textContent = avgProgress + '%';
+                    document.getElementById(`${key}-progress`).style.width = avgProgress + '%';
+                });
+            } catch (error) {
+                console.log('Course stats update error:', error);
+            }
+        }
+
+        window.closeVideoModal = function() {
+            document.getElementById('videoModal').classList.remove('active');
+            const video = document.getElementById('mainVideo');
+            if (video && video.tagName === 'VIDEO') {
+                video.pause();
+                video.currentTime = 0;
+            }
+            // Reset video player to original HTML
+            const videoContainer = document.querySelector('.video-player');
+            if (videoContainer) {
+                videoContainer.innerHTML = `<video id="mainVideo" controls>
+                    <source id="videoSource" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>`;
+            }
+        };
+    </script>
+</body>
+</html>

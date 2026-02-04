@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Storage URLs Debug</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:hover {
+            background: #f5f5f5;
+        }
+        .url-cell {
+            max-width: 400px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            font-size: 12px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .test-button {
+            background: #28a745;
+        }
+        .test-button:hover {
+            background: #218838;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+        .issue-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .solution-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Storage URLs Debug</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="checkURLs()">🔄 Check All URLs</button>
+            <button onclick="location.reload()">↻ Reload Page</button>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="section">
+            <h2>📋 Materials & Their URLs</h2>
+            <div id="urlsContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Issues Found</h2>
+            <div id="issuesContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Solutions</h2>
+            <div id="solutionsContainer"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+            authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+            projectId: "virtual-ai-lab-e2a95",
+            storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+            messagingSenderId: "216930653843",
+            appId: "1:216930653843:web:c5814218b8ba957f349f66",
+            measurementId: "G-XTD7Y22TYC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkURLs = async function() {
+            const statusDiv = document.getElementById('statusMessage');
+            const urlsDiv = document.getElementById('urlsContainer');
+            const issuesDiv = document.getElementById('issuesContainer');
+            const solutionsDiv = document.getElementById('solutionsContainer');
+
+            try {
+                statusDiv.innerHTML = '<div class="status warning">🔄 Checking URLs...</div>';
+
+                const labsRef = collection(db, 'labs');
+                const querySnapshot = await getDocs(labsRef);
+
+                const materials = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    materials.push({
+                        title: data.title || data.experiment || 'Untitled',
+                        videoURL: data.videoURL || null,
+                        pptURL: data.pptURL || null,
+                        regulation: data.regulation,
+                        subject: data.subject
+                    });
+                });
+
+                if (materials.length === 0) {
+                    statusDiv.innerHTML = '<div class="status error">❌ No materials found</div>';
+                    return;
+                }
+
+                // Check URLs
+                let goodURLs = 0;
+                let badURLs = 0;
+                let nullURLs = 0;
+                let issues = [];
+
+                let tableHtml = '<table><thead><tr><th>Title</th><th>Type</th><th>URL Status</th><th>URL</th></tr></thead><tbody>';
+
+                for (const material of materials) {
+                    // Check video URL
+                    if (material.videoURL) {
+                        try {
+                            const response = await fetch(material.videoURL, { method: 'HEAD' });
+                            const status = response.status === 200 ? '✅ Working' : '❌ ' + response.status;
+                            if (response.status === 200) {
+                                goodURLs++;
+                            } else {
+                                badURLs++;
+                                issues.push(`Video "${material.title}" returns ${response.status}`);
+                            }
+                            tableHtml += `
+                                <tr>
+                                    <td><strong>${material.title}</strong></td>
+                                    <td>🎥 Video</td>
+                                    <td style="color: ${response.status === 200 ? '#28a745' : '#dc3545'}">${status}</td>
+                                    <td class="url-cell"><code>${material.videoURL.substring(0, 100)}...</code></td>
+                                </tr>
+                            `;
+                        } catch (error) {
+                            badURLs++;
+                            issues.push(`Video "${material.title}" - CORS or network error`);
+                            tableHtml += `
+                                <tr>
+                                    <td><strong>${material.title}</strong></td>
+                                    <td>🎥 Video</td>
+                                    <td style="color: #dc3545;">⚠️ Error</td>
+                                    <td class="url-cell"><code>${material.videoURL.substring(0, 100)}...</code></td>
+                                </tr>
+                            `;
+                        }
+                    } else {
+                        nullURLs++;
+                        issues.push(`Video "${material.title}" has NO URL stored`);
+                        tableHtml += `
+                            <tr>
+                                <td><strong>${material.title}</strong></td>
+                                <td>🎥 Video</td>
+                                <td style="color: #ffc107;">⚠️ NULL</td>
+                                <td class="url-cell"><em>No URL</em></td>
+                            </tr>
+                        `;
+                    }
+
+                    // Check PPT URL
+                    if (material.pptURL) {
+                        try {
+                            const response = await fetch(material.pptURL, { method: 'HEAD' });
+                            const status = response.status === 200 ? '✅ Working' : '❌ ' + response.status;
+                            if (response.status === 200) {
+                                goodURLs++;
+                            } else {
+                                badURLs++;
+                                issues.push(`PPT "${material.title}" returns ${response.status}`);
+                            }
+                            tableHtml += `
+                                <tr>
+                                    <td><strong>${material.title}</strong></td>
+                                    <td>📊 PPT</td>
+                                    <td style="color: ${response.status === 200 ? '#28a745' : '#dc3545'}">${status}</td>
+                                    <td class="url-cell"><code>${material.pptURL.substring(0, 100)}...</code></td>
+                                </tr>
+                            `;
+                        } catch (error) {
+                            badURLs++;
+                            issues.push(`PPT "${material.title}" - CORS or network error`);
+                            tableHtml += `
+                                <tr>
+                                    <td><strong>${material.title}</strong></td>
+                                    <td>📊 PPT</td>
+                                    <td style="color: #dc3545;">⚠️ Error</td>
+                                    <td class="url-cell"><code>${material.pptURL.substring(0, 100)}...</code></td>
+                                </tr>
+                            `;
+                        }
+                    } else {
+                        nullURLs++;
+                        issues.push(`PPT "${material.title}" has NO URL stored`);
+                        tableHtml += `
+                            <tr>
+                                <td><strong>${material.title}</strong></td>
+                                <td>📊 PPT</td>
+                                <td style="color: #ffc107;">⚠️ NULL</td>
+                                <td class="url-cell"><em>No URL</em></td>
+                            </tr>
+                        `;
+                    }
+                }
+                tableHtml += '</tbody></table>';
+
+                statusDiv.innerHTML = `<div class="status success">✅ Checked ${materials.length} materials</div>`;
+                urlsDiv.innerHTML = tableHtml;
+
+                // Show issues
+                let issuesHtml = '';
+                if (issues.length > 0) {
+                    issuesHtml = '<div class="issue-box"><strong>Found Issues:</strong><ul style="margin-left: 20px; margin-top: 10px;">';
+                    issues.forEach(issue => {
+                        issuesHtml += `<li>${issue}</li>`;
+                    });
+                    issuesHtml += '</ul></div>';
+                } else {
+                    issuesHtml = '<div class="status success">✅ No issues found - all URLs are working!</div>';
+                }
+                issuesDiv.innerHTML = issuesHtml;
+
+                // Show solutions
+                let solutionsHtml = '';
+                if (nullURLs > 0) {
+                    solutionsHtml += `
+                        <div class="solution-box">
+                            <strong>Problem: ${nullURLs} materials have NULL URLs</strong><br/>
+                            <strong>Solution:</strong><br/>
+                            1. Go to faculty_upload.html<br/>
+                            2. Upload videos/presentations again<br/>
+                            3. Make sure you SELECT files before uploading<br/>
+                            4. Wait for success message<br/>
+                            5. URLs should be stored in Firestore<br/>
+                        </div>
+                    `;
+                }
+                if (badURLs > 0) {
+                    solutionsHtml += `
+                        <div class="solution-box">
+                            <strong>Problem: ${badURLs} URLs are returning errors</strong><br/>
+                            <strong>Solution:</strong><br/>
+                            1. Files may not be in Firebase Storage<br/>
+                            2. Check Firebase Console > Storage tab<br/>
+                            3. Look for "faculty" folder<br/>
+                            4. If missing, re-upload from faculty_upload.html<br/>
+                            5. Make sure file uploads complete (watch progress bar)<br/>
+                        </div>
+                    `;
+                }
+                if (nullURLs === 0 && badURLs === 0 && goodURLs > 0) {
+                    solutionsHtml = `
+                        <div class="status success">
+                            ✅ <strong>All URLs are working!</strong><br/>
+                            Materials should display correctly in student dashboard.
+                        </div>
+                    `;
+                }
+                solutionsDiv.innerHTML = solutionsHtml;
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
+            }
+        };
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            setTimeout(checkURLs, 500);
+        });
+    </script>
+</body>
+</html>

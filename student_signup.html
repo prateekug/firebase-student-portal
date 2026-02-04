@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Signup</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="student-page">
+
+<div class="login-card">
+
+    <h1>Student Signup</h1>
+
+    <form id="signupForm">
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="rollNo" placeholder="Roll Number" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit" class="login-btn">Create Account</button>
+    </form>
+
+    <p id="signupMessage" style="margin-top: 10px;"></p>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+  authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+  projectId: "virtual-ai-lab-e2a95",
+  storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+  messagingSenderId: "216930653843",
+  appId: "1:216930653843:web:c5814218b8ba957f349f66",
+  measurementId: "G-XTD7Y22TYC"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const form = document.getElementById("signupForm");
+
+form.addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const rollNo = document.getElementById("rollNo").value;
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("signupMessage");
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    await setDoc(doc(db, "students", uid), {
+      name: name,
+      email: email,
+      rollNo: rollNo,
+      role: "student",
+      approved: true
+    });
+
+    message.style.color = "green";
+    message.innerText = "Account Created Successfully! Redirecting...";
+
+    setTimeout(() => {
+      window.location.href = "student_login.html";
+    }, 1500);
+
+  } catch (error) {
+    message.style.color = "red";
+    message.innerText = error.message;
+  }
+});
+</script>
+
+</body>
+</html>

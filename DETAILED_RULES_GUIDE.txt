@@ -1,0 +1,182 @@
+STEP-BY-STEP: HOW TO UPDATE FIRESTORE SECURITY RULES
+=======================================================
+
+DETAILED INSTRUCTIONS WITH SCREENSHOTS GUIDE:
+
+STEP 1: Go to Firebase Console
+================================
+1. Open: https://console.firebase.google.com/
+2. Login with your Google account
+3. Select project: "virtual-ai-lab-e2a95"
+4. You should see your project dashboard
+
+
+STEP 2: Navigate to Firestore Rules
+====================================
+1. Look at the LEFT SIDEBAR
+2. Find "Firestore Database" (might be under "Build" section)
+3. Click it
+4. Click the "Rules" TAB at the top (you'll see: Overview | Rules | Indexes | Backups)
+
+
+STEP 3: Clear Old Rules & Paste New Ones
+==========================================
+1. You will see a TEXT EDITOR with existing rules
+2. SELECT ALL the text (Ctrl+A)
+3. DELETE it all
+4. PASTE the following EXACTLY:
+
+===========================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /resources/{document=**} {
+      allow read;
+      allow write: if request.auth != null;
+    }
+    match /students/{userId}/progress/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    match /students/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
+===========================================
+
+STEP 4: Look for the PUBLISH Button
+====================================
+1. After pasting, look at the BOTTOM RIGHT of the rules editor
+2. You should see:
+   - A BLUE button that says "Publish" 
+   - OR a button that says "Deploy"
+
+3. If you don't see a button:
+   - Check the TOP RIGHT of the editor
+   - There might be a checkmark icon (✓) or "Save" button
+
+4. Click the button!
+
+
+STEP 5: Verify Rules Are Published
+===================================
+1. After clicking Publish/Deploy, you should see:
+   - A green checkmark (✓)
+   - Message saying "Rules published successfully"
+   - OR "Deployment in progress..."
+
+2. Wait 10-15 seconds for it to complete
+
+3. If you see RED ERROR message:
+   - There's a SYNTAX ERROR in the rules
+   - Copy the EXACT rules from above again
+   - Make sure there are NO extra spaces
+
+
+COMMON ISSUES & SOLUTIONS:
+============================
+
+Issue: Can't find Firestore Database in sidebar
+Solution:
+- Click the hamburger menu (≡) icon in top left
+- Look under "Build" section
+- Select "Firestore Database"
+
+Issue: Don't see a Publish button
+Solution:
+- Look at the VERY BOTTOM RIGHT corner
+- You might need to scroll down in the rules editor
+- The button should appear after you make changes
+
+Issue: Getting a RED ERROR when trying to publish
+Solution:
+- Copy the rules EXACTLY as shown above
+- Make sure each line is correct
+- Delete ALL old rules first
+- Don't add any comments or extra text
+
+Issue: Rules look the same after pasting
+Solution:
+- Make sure you clicked DELETE ALL before pasting
+- Make sure you WAIT for the publish button to appear
+- Click the publish button and WAIT for green confirmation
+
+
+VISUAL LAYOUT REFERENCE:
+========================
+Your screen should look like:
+
+╔══════════════════════════════════════╗
+║ Firestore Database                   ║
+╠══════════════════════════════════════╣
+║ [Overview] [Rules] [Indexes] [...]   ║  ← Click RULES tab
+╠══════════════════════════════════════╣
+║                                      ║
+║  ╔════════════════════════════════╗  ║
+║  ║ rules_version = '2';           ║  ║ ← Rules editor with code
+║  ║ service cloud.firestore {      ║  ║
+║  ║   match /databases...          ║  ║
+║  ║                                ║  ║
+║  ╚════════════════════════════════╝  ║
+║                                      ║
+║                          [Publish]   ║  ← Click this button!
+║                                      ║
+╚══════════════════════════════════════╝
+
+
+AFTER PUBLISHING - TEST IT:
+============================
+1. Open firestore_debug.html in your browser
+2. Check browser console (F12)
+3. It should show:
+   - "Firestore query successful!"
+   - "Total documents found: X"
+   - Your videos should appear in the table
+
+4. If still showing empty:
+   - Refresh the page (Ctrl+R or Cmd+R)
+   - Wait 10 seconds and try again
+   - Rules can take a moment to apply
+
+
+QUICK REFERENCE - Rules Explanation:
+=====================================
+
+Line: allow read;
+Meaning: ANYONE can READ resources (students can see videos)
+
+Line: allow write: if request.auth != null;
+Meaning: Only LOGGED IN users can UPLOAD (faculty can upload)
+
+Line: allow read, write: if request.auth.uid == userId;
+Meaning: Only YOU can read/write your own progress data
+
+
+TROUBLESHOOTING CHECKLIST:
+===========================
+[ ] Went to https://console.firebase.google.com/
+[ ] Selected "virtual-ai-lab-e2a95" project
+[ ] Clicked on "Firestore Database"
+[ ] Clicked the "Rules" tab
+[ ] Deleted ALL old rules
+[ ] Pasted the NEW rules (from above)
+[ ] Found the Publish button
+[ ] Clicked Publish
+[ ] Saw green "Published successfully" message
+[ ] Waited 15 seconds
+[ ] Refreshed student dashboard
+[ ] Opened firestore_debug.html to verify
+
+
+IF STILL NOT WORKING:
+======================
+1. Take a SCREENSHOT of:
+   - The Firestore Rules editor (showing the rules you pasted)
+   - The publish button area
+   - Any error messages
+
+2. Also check:
+   - Browser console (F12) for errors
+   - firestore_debug.html output
+
+3. Share these screenshots for help

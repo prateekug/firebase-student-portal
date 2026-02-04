@@ -1,0 +1,58 @@
+UPDATED FIRESTORE SECURITY RULES - FOR LABS COLLECTION
+======================================================
+
+Your data is in "labs" collection, so the rules need to allow reads from there.
+
+COPY THESE RULES TO FIREBASE CONSOLE:
+
+=======================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read labs materials
+    match /labs/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Also keep resources collection rules for backwards compatibility
+    match /resources/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Allow authenticated users to read their own progress
+    match /students/{userId}/progress/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to read their own data
+    match /students/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
+
+=======================================================
+
+STEPS:
+======
+
+1. Go to: https://console.firebase.google.com/
+2. Select project: "virtual-ai-lab-e2a95"
+3. Click "Firestore Database"
+4. Click "Rules" tab
+5. DELETE ALL existing rules
+6. PASTE the rules above
+7. Click "Publish" button
+8. Wait for green "Published successfully" message
+9. Refresh labs_debug.html in browser
+10. Should now show materials!
+
+
+IMPORTANT:
+==========
+Make sure you see the blue "Publish" button and click it!
+Wait for the green confirmation message.
+Do NOT skip the publish step.

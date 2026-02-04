@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Faculty Dashboard - Virtual AI Lab</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header i {
+            font-size: 32px;
+            margin-right: 12px;
+            color: #667eea;
+        }
+
+        .sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-nav li {
+            margin: 10px 0;
+        }
+
+        .sidebar-nav a {
+            color: #bbb;
+            text-decoration: none;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .sidebar-nav a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            color: #667eea;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: white;
+            border-left: 4px solid #667eea;
+            padding-left: 11px;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .user-info .user-email {
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            margin-left: 280px;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8eaed 100%);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            color: #333;
+            margin: 0;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* OVERVIEW SECTION */
+        .overview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* UPLOAD SECTION */
+        .upload-section {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .upload-section h2 {
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-input-wrapper {
+            margin: 20px 0;
+            padding: 40px;
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .file-input-wrapper:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: #764ba2;
+        }
+
+        .file-input-wrapper input {
+            display: none;
+        }
+
+        .file-input-wrapper i {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .file-input-wrapper p {
+            color: #666;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .file-input-wrapper .secondary {
+            color: #999;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-row input, .form-row select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+        }
+
+        .form-row input:focus, .form-row select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        /* MESSAGE ALERTS */
+        .success-msg {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #28a745;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-msg i {
+            color: #28a745;
+            font-size: 18px;
+        }
+
+        .error-msg {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #dc3545;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-msg i {
+            color: #dc3545;
+            font-size: 18px;
+        }
+
+        /* UPLOADS LIST */
+        .uploads-list {
+            margin-top: 30px;
+        }
+
+        .upload-item {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .upload-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .upload-item-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .upload-item-info i {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        .upload-item-details {
+            flex: 1;
+        }
+
+        .upload-item-details span {
+            color: #333;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .upload-item-details p {
+            color: #999;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .delete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .content-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Faculty Portal</h3>
+            </div>
+
+            <div class="user-info">
+                <i class="fas fa-user-circle" style="font-size: 32px;"></i>
+                <div class="user-email" id="userEmail">loading...</div>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li><a href="#" onclick="showSection('overview')" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" onclick="showSection('video')" class="nav-link"><i class="fas fa-video"></i> Upload Video</a></li>
+                <li><a href="#" onclick="showSection('ppt')" class="nav-link"><i class="fas fa-presentation"></i> Upload PPT</a></li>
+                <li><a href="#" onclick="showSection('uploads')" class="nav-link"><i class="fas fa-folder"></i> My Materials</a></li>
+            </ul>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overview" class="section active">
+                <div class="content-header">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+                </div>
+
+                <div class="overview-container">
+                    <div class="stat-card">
+                        <i class="fas fa-video"></i>
+                        <h3>Videos Uploaded</h3>
+                        <div class="number" id="videoCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-presentation"></i>
+                        <h3>Presentations</h3>
+                        <div class="number" id="pptCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-folder"></i>
+                        <h3>Total Materials</h3>
+                        <div class="number" id="totalCount">0</div>
+                    </div>
+                </div>
+
+                <div class="upload-section">
+                    <h2><i class="fas fa-rocket"></i> Quick Start</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Welcome to your faculty dashboard! You can upload course materials including videos and presentations to share with your students. Select the regulation year and subject before uploading.</p>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="upload-btn" onclick="showSection('video')"><i class="fas fa-plus"></i> Add Video</button>
+                        <button class="upload-btn" onclick="showSection('ppt')"><i class="fas fa-plus"></i> Add Presentation</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Upload Section -->
+            <div id="video" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-video"></i> Upload Video</h1>
+                </div>
+                <div class="upload-section">
+                    <div id="videoMsg"></div>
+                    
+                    <!-- Tab for File or URL -->
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                        <button id="videoFileTab" class="tab-btn" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="switchVideoTab('file')">Upload File</button>
+                        <button id="videoUrlTab" class="tab-btn" style="background: #ddd; color: #333; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="switchVideoTab('url')">Paste YouTube URL</button>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div id="videoFileSection">
+                        <div class="file-input-wrapper" onclick="document.getElementById('videoFile').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to select or drag video file here</p>
+                            <p class="secondary">Supported: MP4, WebM, OGG (Max 500MB)</p>
+                            <input type="file" id="videoFile" accept="video/*">
+                        </div>
+                    </div>
+                    
+                    <!-- URL Input -->
+                    <div id="videoUrlSection" style="display: none;">
+                        <input type="text" id="videoURL" placeholder="📝 Paste YouTube URL (e.g., https://www.youtube.com/watch?v=...)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; margin-bottom: 15px;">
+                        <p class="secondary" style="margin-bottom: 15px;">Supports: YouTube URLs, direct video links</p>
+                    </div>
+                    
+                    <div class="form-row">
+                        <select id="videoRegulation">
+                            <option value="">Select Regulation Year</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <select id="videoSubject">
+                            <option value="">Select Subject</option>
+                            <option value="Physics">Physics</option>
+                            <option value="BEEE">BEEE</option>
+                            <option value="Engineering Workshop">Engineering Workshop</option>
+                        </select>
+                        <input type="text" id="videoTitle" placeholder="📝 Enter video title...">
+                        <button class="upload-btn" onclick="uploadVideo()"><i class="fas fa-arrow-up"></i> Upload</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PPT Upload Section -->
+            <div id="ppt" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-presentation"></i> Upload Presentation</h1>
+                </div>
+                <div class="upload-section">
+                    <div id="pptMsg"></div>
+                    <div class="file-input-wrapper" onclick="document.getElementById('pptFile').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to select or drag PowerPoint file here</p>
+                        <p class="secondary">Supported: PPT, PPTX (Max 100MB)</p>
+                        <input type="file" id="pptFile" accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+                    </div>
+                    <div class="form-row">
+                        <select id="pptRegulation">
+                            <option value="">Select Regulation Year</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                        <select id="pptSubject">
+                            <option value="">Select Subject</option>
+                            <option value="Physics">Physics</option>
+                            <option value="BEEE">BEEE</option>
+                            <option value="Engineering Workshop">Engineering Workshop</option>
+                        </select>
+                        <input type="text" id="pptTitle" placeholder="📝 Enter presentation title...">
+                        <button class="upload-btn" onclick="uploadPPT()"><i class="fas fa-arrow-up"></i> Upload</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uploads List Section -->
+            <div id="uploads" class="section">
+                <div class="content-header">
+                    <h1><i class="fas fa-folder"></i> My Materials</h1>
+                </div>
+                <div class="upload-section">
+                    <div id="uploadsList" class="uploads-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, listAll, deleteObject, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+  authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+  projectId: "virtual-ai-lab-e2a95",
+  storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+  messagingSenderId: "216930653843",
+  appId: "1:216930653843:web:c5814218b8ba957f349f66",
+  measurementId: "G-XTD7Y22TYC"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+let currentUser = null;
+
+/* AUTH CHECK */
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = 'teacher_loginpage.html';
+    } else {
+        currentUser = user;
+        document.getElementById('userEmail').textContent = user.email;
+        loadStats();
+    }
+});
+
+/* SECTION SWITCH */
+window.showSection = function(sectionId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    event.target.closest('a').classList.add('active');
+    if (sectionId === 'uploads') loadUploads();
+};
+
+/* LOGOUT */
+window.logout = function() {
+    signOut(auth).then(() => window.location.href = 'index.html');
+};
+
+/* ================= VIDEO UPLOAD ================= */
+window.switchVideoTab = function(tab) {
+    const fileSection = document.getElementById('videoFileSection');
+    const urlSection = document.getElementById('videoUrlSection');
+    const fileTab = document.getElementById('videoFileTab');
+    const urlTab = document.getElementById('videoUrlTab');
+    
+    if (tab === 'file') {
+        fileSection.style.display = 'block';
+        urlSection.style.display = 'none';
+        fileTab.style.background = '#667eea';
+        fileTab.style.color = 'white';
+        urlTab.style.background = '#ddd';
+        urlTab.style.color = '#333';
+    } else {
+        fileSection.style.display = 'none';
+        urlSection.style.display = 'block';
+        fileTab.style.background = '#ddd';
+        fileTab.style.color = '#333';
+        urlTab.style.background = '#667eea';
+        urlTab.style.color = 'white';
+    }
+};
+
+window.uploadVideo = async function() {
+    console.log("AUTH USER:", auth.currentUser);
+    const file = document.getElementById('videoFile').files[0];
+    const videoURL = document.getElementById('videoURL').value.trim();
+    const experiment = document.getElementById('videoTitle').value;
+    const regulation = document.getElementById('videoRegulation').value;
+    const subject = document.getElementById('videoSubject').value;
+    const msg = document.getElementById('videoMsg');
+
+    if (!experiment || !regulation || !subject) {
+        msg.innerHTML = errorMsg("Please fill all fields");
+        return;
+    }
+
+    // Check if either file or URL is provided
+    if (!file && !videoURL) {
+        msg.innerHTML = errorMsg("Please select a video file or paste a YouTube URL");
+        return;
+    }
+
+    try {
+        const uid = auth.currentUser.uid;
+        let finalVideoURL = videoURL;
+
+        // If file is selected, upload to Firebase Storage
+        if (file) {
+            const videoRef = ref(storage, `labs/videos/${uid}_${Date.now()}_${file.name}`);
+            await uploadBytes(videoRef, file);
+            finalVideoURL = await getDownloadURL(videoRef);
+        } else if (videoURL) {
+            // Validate YouTube URL format
+            if (!videoURL.includes('youtube.com') && !videoURL.includes('youtu.be') && !videoURL.match(/^https?:\/\/.+\.(mp4|webm|ogg)$/i)) {
+                msg.innerHTML = errorMsg("Please enter a valid YouTube or video URL");
+                return;
+            }
+        }
+
+        await addDoc(collection(db, "labs"), {
+            regulation,
+            subject,
+            experiment,
+            videoURL: finalVideoURL,
+            pptURL: null,
+            uploadedBy: uid,
+            timestamp: serverTimestamp()
+        });
+
+        msg.innerHTML = successMsg("Video uploaded successfully");
+        loadStats();
+        
+        // Clear form
+        document.getElementById('videoFile').value = '';
+        document.getElementById('videoURL').value = '';
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoRegulation').value = '';
+        document.getElementById('videoSubject').value = '';
+        
+        setTimeout(() => msg.innerHTML = "", 3000);
+    } catch (e) {
+        msg.innerHTML = errorMsg(e.message);
+    }
+};
+
+/* ================= PPT UPLOAD ================= */
+window.uploadPPT = async function() {
+    const file = document.getElementById('pptFile').files[0];
+    const experiment = document.getElementById('pptTitle').value;
+    const regulation = document.getElementById('pptRegulation').value;
+    const subject = document.getElementById('pptSubject').value;
+    const msg = document.getElementById('pptMsg');
+
+    if (!file || !experiment || !regulation || !subject) {
+        msg.innerHTML = errorMsg("Please fill all fields");
+        return;
+    }
+
+    try {
+        const uid = auth.currentUser.uid;
+
+        const pptRef = ref(storage, `labs/ppts/${uid}_${Date.now()}_${file.name}`);
+        await uploadBytes(pptRef, file);
+        const pptURL = await getDownloadURL(pptRef);
+
+        await addDoc(collection(db, "labs"), {
+            regulation,
+            subject,
+            experiment,
+            videoURL: null,
+            pptURL,
+            uploadedBy: uid,
+            timestamp: serverTimestamp()
+        });
+
+        msg.innerHTML = successMsg("Presentation uploaded successfully");
+        loadStats();
+        setTimeout(() => msg.innerHTML = "", 3000);
+    } catch (e) {
+        msg.innerHTML = errorMsg(e.message);
+    }
+};
+
+/* ================= STATS ================= */
+async function loadStats() {
+    const videos = await listAll(ref(storage, "labs/videos")).catch(() => ({ items: [] }));
+    const ppts = await listAll(ref(storage, "labs/ppts")).catch(() => ({ items: [] }));
+
+    document.getElementById('videoCount').textContent = videos.items.length;
+    document.getElementById('pptCount').textContent = ppts.items.length;
+    document.getElementById('totalCount').textContent = videos.items.length + ppts.items.length;
+}
+
+/* ================= LIST UPLOADS ================= */
+window.loadUploads = async function() {
+    const list = document.getElementById('uploadsList');
+    list.innerHTML = "";
+
+    const videos = await listAll(ref(storage, "labs/videos")).catch(() => ({ items: [] }));
+    const ppts = await listAll(ref(storage, "labs/ppts")).catch(() => ({ items: [] }));
+
+    videos.items.forEach(item => list.innerHTML += uploadCard(item.name, item.fullPath, "film"));
+    ppts.items.forEach(item => list.innerHTML += uploadCard(item.name, item.fullPath, "file-powerpoint"));
+
+    if (!list.innerHTML) {
+        list.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No materials uploaded yet</p></div>`;
+    }
+};
+
+/* DELETE */
+window.deleteFile = async function(path) {
+    if (!confirm("Delete this file?")) return;
+    await deleteObject(ref(storage, path));
+    loadUploads();
+    loadStats();
+};
+
+/* HELPERS */
+function successMsg(t){ return `<div class="success-msg"><i class="fas fa-check-circle"></i> ${t}</div>`;}
+function errorMsg(t){ return `<div class="error-msg"><i class="fas fa-times-circle"></i> ${t}</div>`;}
+function uploadCard(n,p,i){
+    return `<div class="upload-item">
+        <div class="upload-item-info">
+            <i class="fas fa-${i}"></i>
+            <div class="upload-item-details">
+                <span>${n}</span>
+                <p>${p}</p>
+            </div>
+        </div>
+        <button class="delete-btn" onclick="deleteFile('${p}')">
+            <i class="fas fa-trash"></i> Delete
+        </button>
+    </div>`;
+}
+</script>
+    
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Firestore Debug - Labs Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #999;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:hover {
+            background: #f5f5f5;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Labs Collection Debug</h1>
+        <p class="subtitle">This checks the "labs" collection where your materials are stored</p>
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="checkLabs()">🔄 Load Labs Collection</button>
+            <button onclick="location.reload()">↻ Reload Page</button>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="section">
+            <h2>📊 Statistics</h2>
+            <div id="statsContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 All Materials in Labs Collection</h2>
+            <div id="labsContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📚 Materials by Regulation & Subject</h2>
+            <div id="groupedContainer"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+            authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+            projectId: "virtual-ai-lab-e2a95",
+            storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+            messagingSenderId: "216930653843",
+            appId: "1:216930653843:web:c5814218b8ba957f349f66",
+            measurementId: "G-XTD7Y22TYC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkLabs = async function() {
+            const statusDiv = document.getElementById('statusMessage');
+            const labsDiv = document.getElementById('labsContainer');
+            const groupedDiv = document.getElementById('groupedContainer');
+            const statsDiv = document.getElementById('statsContainer');
+
+            try {
+                statusDiv.innerHTML = '<div class="status info">🔄 Loading labs collection...</div>';
+
+                const labsRef = collection(db, 'labs');
+                const querySnapshot = await getDocs(labsRef);
+
+                console.log('Labs query successful! Total docs:', querySnapshot.size);
+
+                const materials = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    materials.push({
+                        id: doc.id,
+                        title: data.title || data.experiment || 'Untitled',
+                        type: data.type || (data.videoURL ? 'video' : data.pptURL ? 'ppt' : 'other'),
+                        regulation: data.regulation || 'N/A',
+                        subject: data.subject || 'N/A',
+                        videoURL: data.videoURL || null,
+                        pptURL: data.pptURL || null,
+                        uploadedBy: data.uploadedBy || 'Unknown',
+                        timestamp: data.timestamp || 'N/A',
+                        ...data
+                    });
+                    console.log('Material:', data.experiment || data.title, '| Subject:', data.subject, '| Regulation:', data.regulation);
+                });
+
+                if (materials.length === 0) {
+                    statusDiv.innerHTML = '<div class="status error">❌ No materials found in labs collection!</div>';
+                    labsDiv.innerHTML = '<div class="no-data">No materials in database</div>';
+                    groupedDiv.innerHTML = '<div class="no-data">No materials in database</div>';
+                    return;
+                }
+
+                statusDiv.innerHTML = '<div class="status success">✅ Found ' + materials.length + ' materials in labs collection!</div>';
+
+                // Stats
+                const stats = {
+                    total: materials.length,
+                    regulations: [...new Set(materials.map(m => m.regulation))],
+                    subjects: [...new Set(materials.map(m => m.subject))],
+                    withVideo: materials.filter(m => m.videoURL).length,
+                    withPPT: materials.filter(m => m.pptURL).length
+                };
+
+                let statsHtml = `
+                    <div class="stat-card">
+                        <div class="number">${stats.total}</div>
+                        <div class="label">Total Materials</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.withVideo}</div>
+                        <div class="label">With Video URL</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.withPPT}</div>
+                        <div class="label">With PPT URL</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.regulations.length}</div>
+                        <div class="label">Regulations</div>
+                    </div>
+                `;
+                statsDiv.innerHTML = statsHtml;
+
+                // Table
+                let tableHtml = '<table><thead><tr><th>Title</th><th>Type</th><th>Regulation</th><th>Subject</th><th>Has Video</th><th>Has PPT</th></tr></thead><tbody>';
+                
+                materials.forEach(material => {
+                    const hasVideo = material.videoURL ? '✓' : '✗';
+                    const hasPPT = material.pptURL ? '✓' : '✗';
+                    
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${material.title}</strong></td>
+                            <td>${material.type}</td>
+                            <td>${material.regulation}</td>
+                            <td>${material.subject}</td>
+                            <td style="text-align: center; color: ${material.videoURL ? '#28a745' : '#ccc'}">${hasVideo}</td>
+                            <td style="text-align: center; color: ${material.pptURL ? '#28a745' : '#ccc'}">${hasPPT}</td>
+                        </tr>
+                    `;
+                });
+                tableHtml += '</tbody></table>';
+                labsDiv.innerHTML = tableHtml;
+
+                // Group by regulation + subject
+                const grouped = {};
+                materials.forEach(material => {
+                    const key = `${material.regulation} - ${material.subject}`;
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(material);
+                });
+
+                let groupedHtml = '';
+                Object.keys(grouped).sort().forEach(key => {
+                    groupedHtml += `
+                        <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #667eea;">
+                            <h3 style="color: #667eea; margin-bottom: 10px; font-size: 16px;">📚 ${key} (${grouped[key].length} materials)</h3>
+                            <ul style="list-style: none;">
+                    `;
+                    grouped[key].forEach(material => {
+                        const videoStatus = material.videoURL ? '🎥 Video' : '❌ No Video';
+                        const pptStatus = material.pptURL ? '📊 PPT' : '❌ No PPT';
+                        
+                        groupedHtml += `<li style="padding: 8px; border-bottom: 1px solid #eee;">
+                            <strong>${material.title}</strong><br/>
+                            <small style="color: #666;">
+                                ${videoStatus} | ${pptStatus}
+                            </small>
+                        </li>`;
+                    });
+                    groupedHtml += '</ul></div>';
+                });
+                groupedDiv.innerHTML = groupedHtml;
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
+            }
+        };
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkLabs, 500);
+        });
+    </script>
+</body>
+</html>

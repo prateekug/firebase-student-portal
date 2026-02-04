@@ -1,0 +1,114 @@
+SIMPLIFIED FIRESTORE RULES - USE IF PREVIOUS DOESN'T WORK
+========================================================
+
+If the complex rules don't work, try these SIMPLER rules first:
+
+COPY EVERYTHING BELOW (including the version line):
+====================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    allow read: if true;
+    allow write: if request.auth != null;
+  }
+}
+
+====================================================
+
+WHAT THIS DOES:
+- Allow ANYONE to READ anything (students can see materials)
+- Allow ONLY logged-in users to WRITE (faculty can upload)
+- NO special rules for different collections
+
+
+HOW TO USE:
+1. Go to Firebase Console > Firestore Database > Rules
+2. SELECT ALL existing text (Ctrl+A)
+3. DELETE it
+4. PASTE the rules above
+5. Look for blue "Publish" button (bottom right of editor)
+6. Click it
+7. Wait for green "Published successfully" message
+
+
+IMPORTANT:
+- Make sure there's a blank line at the very end
+- No extra comments or text
+- Exactly as shown above
+
+
+AFTER PUBLISHING:
+1. Refresh your browser
+2. Open firestore_debug.html
+3. Check if videos now appear
+
+
+IF PUBLISH BUTTON STILL DOESN'T APPEAR:
+========================================
+Your Firestore might be in "Datastore" mode instead of "Native" mode.
+
+To check:
+1. Go to Firestore Database main page
+2. Look at the top - you should see "Native mode" or "Datastore mode"
+3. If it says "Datastore mode", the rules interface is different
+4. Click the mode name to switch to "Native mode"
+5. Then follow the rules update steps above
+
+
+ALTERNATIVE - USE FIREBASE CONSOLE UI:
+========================================
+If text editor doesn't work:
+
+1. In Firestore Database, go to the "Data" tab
+2. Click the "+" button to create a new collection
+3. Name it "test"
+4. If this works, your database permissions are fine
+
+Then try the rules again - the text editor should work
+
+
+VERIFY RULES ARE WORKING:
+==========================
+1. Open firestore_debug.html
+2. You should see ONE of these:
+
+SUCCESS:
+- Shows "✅ Successfully loaded X resources from Firestore"
+- Table shows your uploaded videos
+- Console shows "Firestore query successful"
+
+FAILURE:
+- Shows "❌ No resources found in Firestore"
+- OR "❌ Error: Missing or insufficient permissions"
+- Console shows error
+
+
+IF ERROR PERSISTS:
+==================
+1. Take screenshot of Firestore Rules tab (what you see)
+2. Take screenshot of firestore_debug.html output
+3. Note the exact error message
+4. Check if project has billing enabled (some features require it)
+
+
+PROJECT MIGHT NEED BILLING:
+===========================
+Firestore requires billing for some operations:
+1. Go to Firebase Console
+2. Click your project name (top left)
+3. Click "Project settings"
+4. Click "Billing" tab
+5. If no billing, click "Link billing account" or "Enable billing"
+6. Add a payment method (won't charge unless you exceed free tier)
+
+
+FREE TIER LIMITS:
+=================
+Firestore free tier includes:
+- 1 GB storage
+- 50,000 reads/day
+- 20,000 writes/day
+- 20,000 deletes/day
+
+Student project should be well within these limits.

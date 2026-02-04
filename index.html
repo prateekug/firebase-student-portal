@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Virtual AI Lab - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", "Segoe UI", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .home-container {
+            text-align: center;
+            padding: 40px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .home-container h1 {
+            font-size: 36px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .home-container h2 {
+            font-size: 46px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-quote {
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 40px;
+            color: #e0f2fe;
+            line-height: 1.6;
+        }
+
+        .home-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .home-btn {
+            padding: 16px 36px;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .student-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .faculty-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .home-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .home-btn i {
+            font-size: 18px;
+        }
+
+        .features {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 36px;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .feature-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: #bbb;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .home-container {
+                padding: 20px;
+            }
+
+            .home-container h2 {
+                font-size: 32px;
+            }
+
+            .home-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .home-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <span class="logo">
+            <i class="fas fa-flask"></i>
+        </span>
+        <h1>Welcome to</h1>
+        <h2>Virtual AI Lab</h2>
+        <p class="home-quote">
+            "Revolutionizing Education Through Interactive Virtual Experiments"
+        </p>
+
+        <div class="home-buttons">
+            <a href="student_login.html" class="home-btn student-btn">
+                <i class="fas fa-graduation-cap"></i> Student Login
+            </a>
+            <a href="teacher_loginpage.html" class="home-btn faculty-btn">
+                <i class="fas fa-chalkboard-user"></i> Faculty Login
+            </a>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-video"></i>
+                <h3>Interactive Videos</h3>
+                <p>Learn through high-quality video tutorials and demonstrations</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Track Progress</h3>
+                <p>Monitor your learning journey with detailed progress analytics</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-presentation"></i>
+                <h3>Study Materials</h3>
+                <p>Access presentations, notes, and resources from instructors</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Community</h3>
+                <p>Connect with students and faculty in the Virtual AI Lab</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+FIXED - UPLOAD CODE UPDATED
+============================
+
+WHAT WAS WRONG:
+- faculty_upload.html was saving to "resources" collection
+- But your data is in "labs" collection
+- Field names were inconsistent (videoUrl vs videoURL)
+
+WHAT I FIXED:
+✅ Now saves to "labs" collection (correct location)
+✅ Stores both videoURL and videoUrl (field name compatibility)
+✅ Stores both pptURL and pptUrl (field name compatibility)
+✅ Saves experiment field for compatibility
+
+HOW TO FIX YOUR EXISTING BROKEN UPLOADS:
+=========================================
+
+Option A: Delete Old Data & Re-Upload (RECOMMENDED)
+----------------------------------------------------
+1. Go to Firebase Console
+2. Click Firestore Database
+3. Click "Data" tab
+4. Find "labs" collection
+5. Delete all documents (they have broken URLs)
+6. Then proceed to Step B
+
+
+Option B: Re-Upload New Materials
+==================================
+1. Open faculty_upload.html in browser
+2. Make sure logged in as FACULTY
+3. For each video you want to share:
+   - Title: Enter a title
+   - Description: Enter description (optional)
+   - Regulation: Select 2023 (or your preferred year)
+   - Subject: Select Physics (or your preferred subject)
+   - Duration: Enter duration (optional)
+   - FILE: Click and SELECT a video file from computer
+   - Click "Upload Video"
+4. Watch progress bar reach 100%
+5. Wait for green "✓ Video uploaded successfully!" message
+6. Repeat for other videos/presentations
+
+IMPORTANT STEPS:
+================
+☐ Make sure you actually SELECT a file (don't skip this!)
+☐ Watch progress bar move to 100%
+☐ See green success message before moving to next upload
+☐ Use same Regulation/Subject values for consistency
+
+
+VERIFY UPLOAD WORKED:
+====================
+1. Open urls_debug.html
+2. Look at the table
+3. New uploads should show:
+   - ✅ Working URLs (not NULL or Error)
+   - Proper download links
+
+
+TEST IN STUDENT DASHBOARD:
+=========================
+1. Open student_dashboard.html
+2. Go to Materials section
+3. Select same Regulation + Subject you used in upload
+4. Materials should appear
+5. Click Watch/View
+6. Should work without 404 error!
+
+
+EXPECTED FLOW NOW:
+==================
+
+faculty_upload.html (upload with FIXED code)
+   ↓
+Files go to Firebase Storage
+   ↓
+Download URLs generated automatically
+   ↓
+Data saved to "labs" collection with:
+   - videoURL field
+   - videoUrl field
+   ↓
+urls_debug.html shows ✅ Working
+   ↓
+student_dashboard.html can now display videos
+
+
+TROUBLESHOOTING:
+================
+
+If upload shows error:
+- Make sure file is selected
+- Check browser console (F12) for details
+- Check Firebase project permissions
+
+If urls_debug still shows NULL:
+- Refresh the page
+- Try uploading again
+- Make sure you see success message
+
+If urls_debug shows Error/404:
+- The new uploads should work
+- Old ones are from before fix
+- Delete old documents and re-upload
+
+
+FILES TO USE:
+=============
+faculty_upload.html ← Use UPDATED version to upload
+urls_debug.html ← Verify new uploads have working URLs
+student_dashboard.html ← Should now work with new URLs
+
+
+NEXT STEPS:
+===========
+1. Open faculty_upload.html
+2. Upload 1 test video (small file recommended)
+3. Wait for success message
+4. Open urls_debug.html
+5. Should show ✅ Working for new upload
+6. Go to student_dashboard.html
+7. Select matching Regulation + Subject
+8. Click Watch
+9. Video should play!
+
+
+CLEANUP (OPTIONAL):
+===================
+To remove old broken entries:
+1. Firebase Console > Firestore > Data
+2. Click "labs" collection
+3. Select old documents with NULL/Error URLs
+4. Delete them
+5. Then only new good uploads remain
+
+This gives clean slate for testing.

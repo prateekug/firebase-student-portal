@@ -1,0 +1,42 @@
+FIRESTORE SECURITY RULES - COPY THIS TO YOUR FIREBASE CONSOLE
+
+Go to Firebase Console > Firestore Database > Rules > and paste the following:
+
+====================================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read resources (for students to view materials)
+    match /resources/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Allow authenticated users to read their own progress
+    match /students/{userId}/progress/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to read their own data
+    match /students/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
+
+====================================================================
+
+STEPS TO UPDATE RULES:
+
+1. Go to https://console.firebase.google.com/
+2. Select your project "virtual-ai-lab-e2a95"
+3. Go to "Firestore Database" in left sidebar
+4. Click "Rules" tab
+5. Replace all the existing rules with the code above
+6. Click "Publish"
+
+This will:
+- Allow ANYONE to READ resources (so students can see what faculty uploaded)
+- Allow authenticated users to WRITE to resources (so faculty can upload)
+- Allow students to read/write their own progress data

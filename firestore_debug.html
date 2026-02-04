@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Firestore Debug - Check Uploaded Resources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:hover {
+            background: #f5f5f5;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .url-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .url-cell:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Firestore Debug - Check Your Resources</h1>
+        
+        <div class="stats" id="statsContainer"></div>
+        
+        <div style="margin-bottom: 20px;">
+            <button onclick="checkFirestore()">🔄 Refresh Data</button>
+            <button onclick="location.reload()">↻ Reload Page</button>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="section">
+            <h2>📊 All Resources in Firestore</h2>
+            <div id="resourcesContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Resources by Regulation & Subject</h2>
+            <div id="groupedContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Raw Data (for debugging)</h2>
+            <pre id="rawDataContainer" style="background: white; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px;"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+            authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+            projectId: "virtual-ai-lab-e2a95",
+            storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+            messagingSenderId: "216930653843",
+            appId: "1:216930653843:web:c5814218b8ba957f349f66",
+            measurementId: "G-XTD7Y22TYC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkFirestore = async function() {
+            const statusDiv = document.getElementById('statusMessage');
+            const resourcesDiv = document.getElementById('resourcesContainer');
+            const groupedDiv = document.getElementById('groupedContainer');
+            const rawDataDiv = document.getElementById('rawDataContainer');
+            const statsDiv = document.getElementById('statsContainer');
+
+            try {
+                statusDiv.innerHTML = '<div class="status info">🔄 Loading data from Firestore...</div>';
+
+                const resourcesRef = collection(db, 'resources');
+                const querySnapshot = await getDocs(resourcesRef);
+
+                console.log('Firestore query successful!');
+                console.log('Total documents found:', querySnapshot.size);
+
+                const resources = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    resources.push({
+                        id: doc.id,
+                        ...data
+                    });
+                    console.log('Document:', doc.id, data);
+                });
+
+                // Update stats
+                const stats = {
+                    total: resources.length,
+                    videos: resources.filter(r => r.type === 'video').length,
+                    presentations: resources.filter(r => r.type === 'ppt').length,
+                    regulations: [...new Set(resources.map(r => r.regulation))],
+                    subjects: [...new Set(resources.map(r => r.subject))]
+                };
+
+                let statsHtml = `
+                    <div class="stat-card">
+                        <div class="number">${stats.total}</div>
+                        <div class="label">Total Resources</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.videos}</div>
+                        <div class="label">Videos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">${stats.presentations}</div>
+                        <div class="label">Presentations</div>
+                    </div>
+                `;
+                statsDiv.innerHTML = statsHtml;
+
+                if (resources.length === 0) {
+                    statusDiv.innerHTML = '<div class="status error">❌ No resources found in Firestore! Please upload videos/presentations first.</div>';
+                    resourcesDiv.innerHTML = '<div class="no-data">No resources in database</div>';
+                    groupedDiv.innerHTML = '<div class="no-data">No resources in database</div>';
+                    return;
+                }
+
+                statusDiv.innerHTML = '<div class="status success">✅ Successfully loaded ' + resources.length + ' resources from Firestore!</div>';
+
+                // Display all resources in table
+                let tableHtml = '<table><thead><tr><th>Title</th><th>Type</th><th>Regulation</th><th>Subject</th><th>Duration</th><th>Uploaded By</th></tr></thead><tbody>';
+                
+                resources.forEach(resource => {
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${resource.title}</strong></td>
+                            <td><span style="background: ${resource.type === 'video' ? '#667eea' : '#49a09d'}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">${resource.type === 'video' ? 'Video' : 'Presentation'}</span></td>
+                            <td>${resource.regulation || 'N/A'}</td>
+                            <td>${resource.subject || 'N/A'}</td>
+                            <td>${resource.duration || resource.slides || 'N/A'}</td>
+                            <td>${resource.uploadedBy || 'Unknown'}</td>
+                        </tr>
+                    `;
+                });
+                tableHtml += '</tbody></table>';
+                resourcesDiv.innerHTML = tableHtml;
+
+                // Group by regulation and subject
+                const grouped = {};
+                resources.forEach(resource => {
+                    const key = `${resource.regulation} - ${resource.subject}`;
+                    if (!grouped[key]) grouped[key] = [];
+                    grouped[key].push(resource);
+                });
+
+                let groupedHtml = '';
+                Object.keys(grouped).sort().forEach(key => {
+                    groupedHtml += `
+                        <div style="margin: 15px 0; padding: 10px; background: white; border-radius: 5px;">
+                            <h3 style="color: #667eea; margin-bottom: 10px;">📚 ${key}</h3>
+                            <ul style="list-style: none;">
+                    `;
+                    grouped[key].forEach(resource => {
+                        groupedHtml += `<li style="padding: 5px; border-bottom: 1px solid #eee;">
+                            • <strong>${resource.title}</strong> (${resource.type === 'video' ? '🎥 Video' : '📊 PPT'})
+                            ${resource.description ? '<br/><small style="color: #999;">' + resource.description + '</small>' : ''}
+                        </li>`;
+                    });
+                    groupedHtml += '</ul></div>';
+                });
+                groupedDiv.innerHTML = groupedHtml;
+
+                // Raw data
+                rawDataDiv.textContent = JSON.stringify(resources, null, 2);
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = '<div class="status error">❌ Error: ' + error.message + '</div>';
+                rawDataDiv.textContent = JSON.stringify({
+                    error: error.message,
+                    code: error.code
+                }, null, 2);
+            }
+        };
+
+        // Load on page load
+        window.addEventListener('load', checkFirestore);
+    </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+NO RESOURCES FOUND - DIAGNOSIS & SOLUTION GUIDE
+================================================
+
+You have successfully published the security rules ✓
+But firestore_debug.html shows NO RESOURCES ✗
+
+This means: VIDEOS WERE NEVER UPLOADED TO FIRESTORE
+
+There are 3 possibilities:
+
+POSSIBILITY 1: No videos uploaded yet
+POSSIBILITY 2: Videos uploaded but not saved to Firestore  
+POSSIBILITY 3: Videos saved to wrong location
+
+
+HOW TO DIAGNOSE - STEP BY STEP
+================================
+
+STEP 1: Check If Faculty Actually Uploaded Videos
+===================================================
+1. Open: faculty_debug.html (NEW FILE - I created this)
+2. It will show:
+   ✓ Resources in Firestore (database metadata)
+   ✓ Files in Storage (actual video files)
+
+3. Look at the results:
+
+   IF showing "NO RESOURCES FOUND IN FIRESTORE":
+      → Videos were NOT saved to database
+      → Faculty upload form is not working correctly
+      → Go to STEP 2 below
+
+   IF showing "FOUND X resources":
+      → Videos ARE in Firestore
+      → Problem is somewhere else
+      → Check Student Dashboard settings
+
+
+STEP 2: Test Upload Process
+=============================
+1. Open faculty_dashboard.html (or faculty_upload.html)
+2. Make sure you're LOGGED IN as faculty
+3. Fill in the form:
+   - Video Title: "Test Video"
+   - Description: "Test"
+   - Regulation: "2023"
+   - Subject: "Physics"
+   - Select a VIDEO FILE
+4. Click "Upload Video"
+5. WATCH THE BROWSER CONSOLE (F12) for messages
+6. Look for either:
+   SUCCESS: "✓ Video uploaded successfully!"
+   ERROR: Red error message with details
+
+
+STEP 3: Monitor Upload Process
+================================
+While uploading, open browser CONSOLE (F12) and look for:
+
+SUCCESS MESSAGES:
+"Video uploaded successfully!"
+"Document added to Firestore"
+Progress bar reaching 100%
+
+ERROR MESSAGES:
+"Error uploading video: ..."
+"FirebaseError: Missing or insufficient permissions"
+"Authentication required"
+
+Common errors:
+
+ERROR: "Missing or insufficient permissions"
+CAUSE: Not logged in as faculty
+FIX: Log out and log back in with faculty account
+
+ERROR: "Storage path too long" or "Invalid path"
+CAUSE: File name or path is invalid
+FIX: Use simple file names (no special characters)
+
+ERROR: "File too large"
+CAUSE: Video file is too big
+FIX: Try with smaller video file
+
+
+STEP 4: Verify Upload in Firebase Console
+============================================
+1. Go to: https://console.firebase.google.com/
+2. Select project: "virtual-ai-lab-e2a95"
+3. Click "Firestore Database"
+4. Click "Data" tab
+5. Look for "resources" collection
+6. Should see documents with uploaded videos
+
+If NO "resources" collection exists:
+   → Videos were never uploaded
+   → Check faculty_upload.html for errors
+
+
+STEP 5: Run Faculty Debug
+===========================
+Open: faculty_debug.html
+
+This will show:
+✓ Total resources in Firestore
+✓ Videos vs Presentations count
+✓ Files in storage
+✓ Which regulations/subjects have files
+
+Results guide:
+
+FOUND 0 RESOURCES:
+   → No videos in Firestore
+   → Try uploading again
+   → Watch console for errors
+
+FOUND X VIDEOS:
+   → Videos ARE there!
+   → Go back to student dashboard
+   → Make sure you select matching regulation+subject
+   → Refresh the page
+   → Videos should appear
+
+
+COMPLETE TROUBLESHOOTING WORKFLOW
+==================================
+
+1. Open faculty_debug.html
+   ↓ Does it show resources? ↓
+   
+   NO → Go to STEP 2
+   YES → Go to STEP 7
+
+2. Open faculty_upload.html
+   ↓ Upload a test video ↓
+
+3. Open browser console (F12)
+   ↓ Watch for upload messages ↓
+
+4. Wait for success message
+   ↓ If error → Check error details ↓
+
+5. Go back to faculty_debug.html
+   ↓ Refresh the page ↓
+
+6. Should now show resources
+   ↓ Note the Regulation and Subject ↓
+
+7. Open firestore_debug.html
+   ↓ Select same Regulation + Subject ↓
+
+8. Should show the videos!
+   ↓ If still empty → Check student dashboard settings ↓
+
+9. Go to student_dashboard.html
+   ↓ Select SAME Regulation + Subject ↓
+
+10. Videos should now appear!
+
+
+KEY THINGS TO CHECK
+====================
+
+[] Are you logged in as FACULTY when uploading?
+[] Did you select a VIDEO FILE from your computer?
+[] Did you fill in Regulation (2022/2023/2024)?
+[] Did you fill in Subject (Physics/BEEE/Engineering Workshop)?
+[] Did you see upload progress bar move to 100%?
+[] Did you see success message?
+[] Did browser console show any errors?
+[] Does faculty_debug.html show resources now?
+[] Are you selecting EXACT SAME regulation + subject in student dashboard?
+[] Did you refresh student dashboard after selecting?
+
+
+IF STILL NOT WORKING
+====================
+
+Create a NEW video with these EXACT details:
+
+Title: TestVideo2023Physics
+Description: Test upload
+Regulation: 2023 (exactly this)
+Subject: Physics (exactly this)
+Duration: 5
+File: Any small video
+
+Then:
+1. Open faculty_debug.html
+2. Confirm video appears
+3. Note exact regulation and subject shown
+4. Go to student_dashboard
+5. Select EXACT same values
+6. Refresh page
+7. Should appear
+
+
+FILES FOR THIS PROCESS
+======================
+
+faculty_debug.html ← START HERE to diagnose
+faculty_upload.html ← Upload test video
+firestore_debug.html ← Check if Firestore has data
+student_dashboard.html ← View materials as student
+
+
+CRITICAL SUCCESS CRITERIA
+===========================
+
+[ ] faculty_debug.html shows at least 1 resource
+[ ] Resource shows Regulation (2023)
+[ ] Resource shows Subject (Physics)
+[ ] Resources appear in Firestore table
+[ ] Student dashboard selected EXACT regulation+subject
+[ ] Student dashboard shows matching videos
+
+
+WHAT EACH PAGE DOES
+====================
+
+faculty_upload.html:
+- Faculty uploads videos/presentations
+- Saves files to Storage
+- Saves metadata to Firestore
+
+faculty_debug.html:
+- Shows what's in Firestore (metadata)
+- Shows what's in Storage (actual files)
+- Helps diagnose upload issues
+
+firestore_debug.html:
+- Shows all resources for all users
+- Helps verify data exists
+
+student_dashboard.html:
+- Students select regulation + subject
+- System filters materials
+- Students watch videos
+
+
+PERMISSIONS FLOW
+================
+
+Faculty uploads:
+1. Faculty logs in ← Auth
+2. Faculty selects file ← Local
+3. Faculty clicks upload ← Triggers code
+4. File saved to Storage ← Firebase Storage (public URL)
+5. Metadata saved to Firestore ← Firebase Firestore (database)
+
+Student views:
+1. Student logs in ← Auth
+2. Student selects regulation+subject ← Input
+3. System queries Firestore ← Reads metadata
+4. Firestore returns matching resources ← Query result
+5. Student clicks Watch ← Uses Storage URL from metadata
+
+
+IF YOU SEE THIS ERROR
+====================
+
+"Cannot read properties of null (reading 'classList')"
+CAUSE: HTML element not found
+FIX: Make sure you're on correct page
+
+"FirebaseError: Missing or insufficient permissions"
+CAUSE: Firestore rules or auth issue
+FIX: Check security rules are published
+     Check you're logged in
+
+"No resources found"
+CAUSE: Nothing uploaded OR wrong query
+FIX: Use faculty_debug.html to verify uploads exist
+
+
+NEXT STEPS
+===========
+
+1. Do NOT close this guide
+2. Open faculty_debug.html in new tab
+3. Take a SCREENSHOT of the results
+4. Share the screenshot
+5. Tell me:
+   - Does it show "NO RESOURCES FOUND" or "FOUND X resources"?
+   - If found, what regulations/subjects are listed?
+   - Any error messages?
+
+This will help diagnose the exact issue!

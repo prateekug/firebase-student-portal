@@ -1,0 +1,177 @@
+404 ERROR - URLs ARE BROKEN
+=============================
+
+PROBLEM:
+When you click "Watch" or "View", you get a 404 error.
+
+CAUSE:
+The URLs stored in Firestore are invalid or files aren't in Firebase Storage.
+
+SOLUTION STEPS:
+===============
+
+STEP 1: Check Which URLs Are Broken
+====================================
+1. Open: urls_debug.html
+2. It will show:
+   ✓ Each material and its URL
+   ✓ Whether URL works (✅) or broken (❌)
+   ✓ Which ones have NULL URLs
+
+STEP 2: Based on Results:
+
+IF showing "All URLs are working":
+   → Problem is elsewhere
+   → Go to STEP 4
+
+IF showing "URLs returning errors":
+   → Files not in Storage
+   → Go to STEP 3A
+
+IF showing "NULL URLs":
+   → URLs never saved to Firestore
+   → Go to STEP 3B
+
+
+STEP 3A: If URLs are returning errors
+======================================
+1. Go to Firebase Console
+2. Click "Storage" tab (left sidebar)
+3. Look for "faculty" folder
+4. Check if uploaded files exist
+
+If files exist:
+   → URLs might be expired
+   → Try Step 4 (re-upload)
+
+If files DON'T exist:
+   → Files never uploaded to Storage
+   → Go to Step 3B
+
+
+STEP 3B: Re-upload Materials
+=============================
+1. Open faculty_upload.html
+2. Make sure logged in as FACULTY
+3. Fill in form:
+   - Title: "Test Video"
+   - Regulation: 2023
+   - Subject: Physics
+   - Description: "Test"
+4. IMPORTANT: Click on file input and SELECT a video
+5. Watch progress bar move to 100%
+6. Wait for success message
+7. Repeat for 1-2 more videos
+8. Then go back to urls_debug.html and refresh
+
+
+STEP 4: Verify Upload Process
+==============================
+While uploading in faculty_upload.html:
+1. Open browser console (F12)
+2. Watch for upload messages
+3. Should see:
+   - Progress updates
+   - "Video uploaded successfully"
+   - No error messages
+
+If you see errors:
+   - Take screenshot of error
+   - Check console for details
+
+
+STEP 5: Verify URLs Were Saved
+==============================
+After uploading:
+1. Open urls_debug.html
+2. Click "Check All URLs"
+3. Should show your new uploads
+4. URLs should show ✅ Working
+
+If still showing NULL:
+   - Files uploaded to Storage but not Firestore
+   - Contact Firebase support or check upload code
+
+
+STEP 6: Test in Student Dashboard
+==================================
+Once URLs are working:
+1. Open student_dashboard.html
+2. Go to Materials section
+3. Select Regulation + Subject
+4. Click Watch on a video
+5. Video should play (not 404 error!)
+
+
+QUICK CHECKLIST:
+================
+
+[ ] Opened urls_debug.html
+[ ] Checked which URLs are broken
+[ ] Re-uploaded materials from faculty_upload.html
+[ ] Watched progress bar reach 100%
+[ ] Saw success message
+[ ] Refreshed urls_debug.html
+[ ] URLs now show ✅ Working
+[ ] Tested in student_dashboard.html
+[ ] Video plays without 404 error
+
+
+COMMON PROBLEMS:
+================
+
+"All URLs NULL"
+→ Files never reached Firestore
+→ Reason: Upload form didn't save metadata
+→ Fix: Upload from faculty_upload.html again
+
+"URLs return 404"
+→ Files in Storage but URLs invalid
+→ Reason: URLs might be expired
+→ Fix: Re-generate URLs or re-upload
+
+"URLs have different structure"
+→ Could be old uploads
+→ Fix: Delete old materials and re-upload
+
+"Some materials have video, some don't"
+→ Different upload sources (old vs new)
+→ Fix: Standardize by re-uploading all
+
+
+EXPECTED BEHAVIOR:
+==================
+
+urls_debug.html should show:
+
+✅ All URLs Working
+   ├─ Material 1: 🎥 Video ✅
+   ├─ Material 1: 📊 PPT ✅
+   ├─ Material 2: 🎥 Video ✅
+   └─ Material 2: 📊 PPT ✅
+
+Then student_dashboard works:
+   1. Select regulation + subject
+   2. Materials appear
+   3. Click Watch
+   4. Video plays
+   5. No 404 errors
+
+
+IF STILL NOT WORKING:
+====================
+
+Tell me from urls_debug.html output:
+1. How many materials found?
+2. How many have NULL URLs?
+3. How many have broken URLs (404)?
+4. What is the structure of a URL? (first 100 chars)
+
+This will help diagnose the exact issue!
+
+
+FILES NEEDED:
+=============
+urls_debug.html ← Check URL status
+faculty_upload.html ← Re-upload materials
+student_dashboard.html ← Test playback after fix

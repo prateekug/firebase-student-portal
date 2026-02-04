@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Faculty Upload Resources</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .faculty-upload-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #5f2c82, #49a09d);
+            padding: 40px 20px;
+        }
+
+        .upload-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .upload-header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .upload-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 22px;
+            padding: 40px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.25);
+        }
+
+        .upload-card h2 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #5f2c82;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-size: 14px;
+            transition: 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #5f2c82;
+            box-shadow: 0 0 0 3px rgba(95, 44, 130, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px dashed #5f2c82;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s ease;
+            font-weight: 600;
+            color: #5f2c82;
+        }
+
+        .file-input-label:hover {
+            background: #f9f9f9;
+            border-color: #49a09d;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .upload-btn {
+            background: #5f2c82;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            background: #49a09d;
+            transform: translateY(-2px);
+        }
+
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .info-box {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #555;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .logout-section {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5f2c82, #49a09d);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .upload-content {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-header h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body class="faculty-page">
+
+<div class="faculty-upload-container">
+    <div class="upload-header">
+        <h1>Upload Lab Resources</h1>
+        <p style="color: white; margin-top: 10px;">Share educational videos and presentations with students</p>
+    </div>
+
+    <div class="upload-content">
+        <!-- Video Upload Card -->
+        <div class="upload-card">
+            <h2>🎥 Upload Video Tutorial</h2>
+            <form id="videoForm">
+                <div class="form-group">
+                    <label for="videoTitle">Video Title *</label>
+                    <input type="text" id="videoTitle" required placeholder="e.g., LED Circuit Introduction">
+                </div>
+
+                <div class="form-group">
+                    <label for="videoDescription">Description</label>
+                    <textarea id="videoDescription" placeholder="Describe the video content..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoDuration">Duration (minutes)</label>
+                    <input type="text" id="videoDuration" placeholder="e.g., 15">
+                </div>
+
+                <div class="form-group">
+                    <label for="videoRegulation">Regulation *</label>
+                    <select id="videoRegulation" required>
+                        <option value="">Select Regulation</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoSubject">Subject *</label>
+                    <select id="videoSubject" required>
+                        <option value="">Select Subject</option>
+                        <option value="BEEE">BEEE (Basic Electrical Engineering)</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Engineering Workshop">Engineering Workshop</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="videoFile">Video File *</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="videoFile" required accept="video/*">
+                        <label for="videoFile" class="file-input-label">
+                            📁 Click to select video or drag & drop
+                        </label>
+                        <div class="file-name" id="videoFileName"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="upload-btn" id="videoUploadBtn">Upload Video</button>
+                <div id="videoProgress" class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="videoProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="videoProgressText">0%</div>
+                </div>
+                <div id="videoMessage" class="message"></div>
+
+                <div class="info-box">
+                    💡 Select a video file from your device (supports MP4, WebM, etc.)
+                </div>
+            </form>
+        </div>
+
+        <!-- PPT Upload Card -->
+        <div class="upload-card">
+            <h2>📊 Upload Presentation</h2>
+            <form id="pptForm">
+                <div class="form-group">
+                    <label for="pptTitle">Presentation Title *</label>
+                    <input type="text" id="pptTitle" required placeholder="e.g., Fundamentals of Electricity">
+                </div>
+
+                <div class="form-group">
+                    <label for="pptDescription">Description</label>
+                    <textarea id="pptDescription" placeholder="Describe the presentation content..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="pptSlides">Number of Slides</label>
+                    <input type="text" id="pptSlides" placeholder="e.g., 25">
+                </div>
+
+                <div class="form-group">
+                    <label for="pptRegulation">Regulation *</label>
+                    <select id="pptRegulation" required>
+                        <option value="">Select Regulation</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pptSubject">Subject *</label>
+                    <select id="pptSubject" required>
+                        <option value="">Select Subject</option>
+                        <option value="BEEE">BEEE (Basic Electrical Engineering)</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Engineering Workshop">Engineering Workshop</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pptFile">Presentation File *</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="pptFile" required accept=".ppt,.pptx,.pdf">
+                        <label for="pptFile" class="file-input-label">
+                            📁 Click to select presentation or drag & drop
+                        </label>
+                        <div class="file-name" id="pptFileName"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="upload-btn" id="pptUploadBtn">Upload Presentation</button>
+                <div id="pptProgress" class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="pptProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="pptProgressText">0%</div>
+                </div>
+                <div id="pptMessage" class="message"></div>
+
+                <div class="info-box">
+                    💡 Select a presentation file from your device (supports PPTX, PPT, PDF)
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="logout-section">
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANHKn4he1oT1cqWriKYR4OBz5JAv6iIZk",
+  authDomain: "virtual-ai-lab-e2a95.firebaseapp.com",
+  projectId: "virtual-ai-lab-e2a95",
+  storageBucket: "virtual-ai-lab-e2a95.firebasestorage.app",
+  messagingSenderId: "216930653843",
+  appId: "1:216930653843:web:c5814218b8ba957f349f66",
+  measurementId: "G-XTD7Y22TYC"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Check if user is authenticated
+auth.onAuthStateChanged(function(user) {
+  if (!user) {
+    console.warn("User not authenticated. Redirecting to login.");
+    window.location.href = "teacher_loginpage.html";
+  }
+});
+
+// File input change handler - display selected file name for video
+document.getElementById("videoFile").addEventListener("change", function(e) {
+  const fileName = e.target.files[0]?.name || "";
+  document.getElementById("videoFileName").innerText = fileName ? `Selected: ${fileName}` : "";
+});
+
+// File input change handler - display selected file name for PPT
+document.getElementById("pptFile").addEventListener("change", function(e) {
+  const fileName = e.target.files[0]?.name || "";
+  document.getElementById("pptFileName").innerText = fileName ? `Selected: ${fileName}` : "";
+});
+
+// Video Form
+document.getElementById("videoForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const title = document.getElementById("videoTitle").value;
+  const description = document.getElementById("videoDescription").value;
+  const duration = document.getElementById("videoDuration").value;
+  const regulation = document.getElementById("videoRegulation").value;
+  const subject = document.getElementById("videoSubject").value;
+  const videoFile = document.getElementById("videoFile").files[0];
+  const messageDiv = document.getElementById("videoMessage");
+  const progressContainer = document.getElementById("videoProgress");
+  const progressFill = document.getElementById("videoProgressFill");
+  const progressText = document.getElementById("videoProgressText");
+  const uploadBtn = document.getElementById("videoUploadBtn");
+
+  if (!videoFile) {
+    messageDiv.className = "message error";
+    messageDiv.innerText = "✗ Please select a video file";
+    messageDiv.style.display = "block";
+    return;
+  }
+
+  try {
+    uploadBtn.disabled = true;
+    progressContainer.style.display = "block";
+    messageDiv.style.display = "none";
+
+    // Create storage reference with the required path structure
+    const storageRef = ref(storage, `faculty/${subject}/${regulation}/videos/${videoFile.name}`);
+
+    // Upload with progress tracking
+    let simulatedProgress = 0;
+    const progressInterval = setInterval(() => {
+      if (simulatedProgress < 90) {
+        simulatedProgress += Math.random() * 30;
+        if (simulatedProgress > 90) simulatedProgress = 90;
+        progressFill.style.width = simulatedProgress + "%";
+        progressText.innerText = Math.round(simulatedProgress) + "%";
+      }
+    }, 300);
+
+    // Wait for upload to complete
+    const snapshot = await uploadBytes(storageRef, videoFile);
+    clearInterval(progressInterval);
+    progressFill.style.width = "100%";
+    progressText.innerText = "100%";
+
+    // Get download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log('Download URL:', downloadURL);
+
+    // Write to Firestore in LABS collection with correct field names
+    const currentUser = auth.currentUser;
+    await addDoc(collection(db, "labs"), {
+      type: "video",
+      title: title,
+      experiment: title,
+      description: description,
+      duration: duration,
+      regulation: regulation,
+      subject: subject,
+      videoURL: downloadURL,
+      videoUrl: downloadURL,
+      fileName: videoFile.name,
+      fileSize: videoFile.size,
+      uploadedAt: serverTimestamp(),
+      uploadedBy: currentUser ? currentUser.email : "unknown",
+      storagePath: `faculty/${subject}/${regulation}/videos/${videoFile.name}`
+    });
+
+    console.log('Document saved to labs collection');
+
+    messageDiv.className = "message success";
+    messageDiv.innerText = "✓ Video uploaded successfully!";
+    messageDiv.style.display = "block";
+    document.getElementById("videoForm").reset();
+    document.getElementById("videoFileName").innerText = "";
+    progressContainer.style.display = "none";
+    progressFill.style.width = "0%";
+    progressText.innerText = "0%";
+
+    setTimeout(() => {
+      messageDiv.style.display = "none";
+    }, 3000);
+
+  } catch (error) {
+    console.error("Upload error:", error);
+    messageDiv.className = "message error";
+    messageDiv.innerText = "✗ Error uploading video: " + error.message;
+    messageDiv.style.display = "block";
+    progressContainer.style.display = "none";
+  } finally {
+    uploadBtn.disabled = false;
+  }
+});
+
+// PPT Form
+document.getElementById("pptForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const title = document.getElementById("pptTitle").value;
+  const description = document.getElementById("pptDescription").value;
+  const slides = document.getElementById("pptSlides").value;
+  const regulation = document.getElementById("pptRegulation").value;
+  const subject = document.getElementById("pptSubject").value;
+  const pptFile = document.getElementById("pptFile").files[0];
+  const messageDiv = document.getElementById("pptMessage");
+  const progressContainer = document.getElementById("pptProgress");
+  const progressFill = document.getElementById("pptProgressFill");
+  const progressText = document.getElementById("pptProgressText");
+  const uploadBtn = document.getElementById("pptUploadBtn");
+
+  if (!pptFile) {
+    messageDiv.className = "message error";
+    messageDiv.innerText = "✗ Please select a presentation file";
+    messageDiv.style.display = "block";
+    return;
+  }
+
+  try {
+    uploadBtn.disabled = true;
+    progressContainer.style.display = "block";
+    messageDiv.style.display = "none";
+
+    // Create storage reference with the required path structure
+    const storageRef = ref(storage, `faculty/${subject}/${regulation}/presentations/${pptFile.name}`);
+
+    // Upload file
+    let simulatedProgress = 0;
+    const progressInterval = setInterval(() => {
+      if (simulatedProgress < 90) {
+        simulatedProgress += Math.random() * 30;
+        if (simulatedProgress > 90) simulatedProgress = 90;
+        progressFill.style.width = simulatedProgress + "%";
+        progressText.innerText = Math.round(simulatedProgress) + "%";
+      }
+    }, 300);
+
+    const snapshot = await uploadBytes(storageRef, pptFile);
+    clearInterval(progressInterval);
+    progressFill.style.width = "100%";
+    progressText.innerText = "100%";
+
+    // Get download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log('Download URL:', downloadURL);
+
+    // Write to Firestore in LABS collection with correct field names
+    const currentUser = auth.currentUser;
+    await addDoc(collection(db, "labs"), {
+      type: "ppt",
+      title: title,
+      experiment: title,
+      description: description,
+      slides: slides,
+      regulation: regulation,
+      subject: subject,
+      pptURL: downloadURL,
+      pptUrl: downloadURL,
+      fileName: pptFile.name,
+      fileSize: pptFile.size,
+      uploadedAt: serverTimestamp(),
+      uploadedBy: currentUser ? currentUser.email : "unknown",
+      storagePath: `faculty/${subject}/${regulation}/presentations/${pptFile.name}`
+    });
+
+    console.log('Document saved to labs collection');
+
+    messageDiv.className = "message success";
+    messageDiv.innerText = "✓ Presentation uploaded successfully!";
+    messageDiv.style.display = "block";
+    document.getElementById("pptForm").reset();
+    document.getElementById("pptFileName").innerText = "";
+    progressContainer.style.display = "none";
+    progressFill.style.width = "0%";
+    progressText.innerText = "0%";
+
+    setTimeout(() => {
+      messageDiv.style.display = "none";
+    }, 3000);
+
+  } catch (error) {
+    console.error("PPT Upload error:", error);
+    messageDiv.className = "message error";
+    messageDiv.innerText = "✗ Error uploading presentation: " + error.message;
+    messageDiv.style.display = "block";
+    progressContainer.style.display = "none";
+  } finally {
+    uploadBtn.disabled = false;
+  }
+});
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", function() {
+  signOut(auth).then(() => {
+    window.location.href = "teacher_loginpage.html";
+  }).catch((error) => {
+    console.error("Logout error:", error);
+  });
+});
+</script>
+</body>
+</html>
